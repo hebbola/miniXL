@@ -1,17 +1,11 @@
 /* sharing.js — Compartir por URL (#hash + LZ-string) y exportar CSV
-   Responsabilidad:
-     - Codificar la hoja activa en el hash de la URL
-     - Decodificar hash al cargar y crear hoja nueva con los datos
-     - Exportar CSV
-     - Modal de compartir (delegado)
-   Expone: window.Sharing
-*/
+   Expone: window.Sharing */
 (function () {
     'use strict';
 
     var S = window.state;
 
-    // ---------- Codificar hoja actual a payload comprimido ----------
+    // ---------- Codificar hoja actual ----------
     function encodeCurrentSheet(customName) {
         var sheet = window.State.getCurrentSheet();
         var payload = {
@@ -23,7 +17,7 @@
         return LZString.compressToEncodedURIComponent(JSON.stringify(payload));
     }
 
-    // ---------- Procesar hash entrante al cargar la app ----------
+    // ---------- Procesar hash entrante ----------
     function processIncomingHash() {
         var hash = location.hash || '';
         if (hash.indexOf('#h=') !== 0) return false;
@@ -46,10 +40,8 @@
                 incoming.k || 'text'
             );
 
-            // Limpiar hash para que un refresh no cree otra hoja nueva
             history.replaceState(null, '', location.pathname + location.search);
 
-            // Avisar al usuario tras un pequeño delay (cuando la UI esté lista)
             setTimeout(function () {
                 window.showModal('Hoja recibida', 'Se creó "' + newSheet.name + '" con los datos del enlace.');
             }, 250);
@@ -77,22 +69,40 @@
                     var url = base + '#h=' + payload;
                     var chars = url.length;
 
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
-                        navigator.clipboard.writeText(url).then(function () {
-                            window.showModal('Enlace copiado',
-                                'Longitud: ' + chars + ' caracteres.\n\nPégalo en tu app de mensajería.');
-                        }).catch(function () {
-                            window.showModal('Enlace generado',
-                                'Copia manualmente:\n\n' + url);
+                    // Intentar Web Share API (abre la hoja nativa del móvil)
+                    if (navigator.share) {
+                        navigator.share({
+                            title: 'MiniXL',
+                            text: 'Hoja: ' + nombre.trim(),
+                            url: url
+                        }).catch(function (err) {
+                            // Si el usuario cancela, no hacemos nada
+                            if (err && err.name === 'AbortError') return;
+                            // Si falla por otra razón, caemos a copiar
+                            copyAndNotify(url, chars);
                         });
                     } else {
-                        fallbackCopy(url);
-                        window.showModal('Enlace copiado',
-                            'Longitud: ' + chars + ' caracteres.');
+                        copyAndNotify(url, chars);
                     }
                 }
             });
         }, 100);
+    }
+
+    function copyAndNotify(url, chars) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(function () {
+                window.showModal('Enlace copiado',
+                    'Longitud: ' + chars + ' caracteres.\n\nPégalo en tu app de mensajería.');
+            }).catch(function () {
+                window.showModal('Enlace generado',
+                    'Copia manualmente:\n\n' + url);
+            });
+        } else {
+            fallbackCopy(url);
+            window.showModal('Enlace copiado',
+                'Longitud: ' + chars + ' caracteres.');
+        }
     }
 
     function fallbackCopy(text) {
@@ -150,7 +160,7 @@
         return true;
     }
 
-    // ---------- Delegación de eventos ----------
+    // ---------- Delegación ----------
     function bindDelegatedEvents() {
         var btnOpenShare = document.getElementById('btn-open-share');
         if (btnOpenShare) {
@@ -168,7 +178,6 @@
         if (btnShare) btnShare.addEventListener('click', shareByMessage);
     }
 
-    // API pública
     window.Sharing = {
         encodeCurrentSheet: encodeCurrentSheet,
         processIncomingHash: processIncomingHash,
