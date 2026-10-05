@@ -1,4 +1,6 @@
 /* columns.js — Modal de operaciones + WAVG + chips de peso + hardcodeo
+   Regla: cualquier columna puede ser peso. Si tenía fórmula, se hardcodea.
+   Click en chip = aplica WAVG inmediatamente.
    Expone: window.Columns */
 (function () {
     'use strict';
@@ -26,7 +28,7 @@
 
         var current = window.State.getOp(colIndex);
         if (current && current.op === 'WAVG' && current.weights) {
-            selectedWeights = current.weights.slice(0, 1); // solo una
+            selectedWeights = current.weights.slice(0, 1);
             openWeightsUI();
             renderChips();
         }
@@ -44,44 +46,31 @@
         renderChips();
     }
 
-    // ---------- Chips ----------
+    // ---------- Chips (siempre elegibles) ----------
     function renderChips() {
         var container = document.getElementById('weights-chips');
         if (!container) return;
 
-        var sheet = window.State.getCurrentSheet();
         var html = '';
-
         for (var c = 0; c < S.cols; c++) {
             if (c === activeCol) continue;
 
-            var isCalc = !!sheet.operations[c];
             var isSelected = selectedWeights.indexOf(c) !== -1;
-
-            var classes = 'weight-chip';
-            if (isCalc) classes += ' disabled';
-            else if (isSelected) classes += ' selected';
+            var classes = 'weight-chip' + (isSelected ? ' selected' : '');
 
             html += '<div class="' + classes + '" data-weight-col="' + c + '">' +
                     window.State.getColName(c) +
                     '</div>';
         }
-
         container.innerHTML = html;
     }
 
-    // ---------- Toggle chip (único) ----------
-    function toggleWeightChip(colIndex) {
-        var sheet = window.State.getCurrentSheet();
-        if (sheet.operations[colIndex]) return;
-
-        if (selectedWeights.length === 1 && selectedWeights[0] === colIndex) {
-            selectedWeights = [];
-        } else {
-            selectedWeights = [colIndex];
-        }
-
+    // ---------- Click en chip = aplica WAVG directo ----------
+    function pickWeightAndApply(colIndex) {
+        selectedWeights = [colIndex];
         renderChips();
+        // Aplicar inmediatamente
+        confirmWAVG();
     }
 
     // ---------- Aplicar operación ----------
@@ -124,12 +113,28 @@
         uiState = 'idle';
     }
 
+    // ---------- Hardcodear columnas que eran peso con fórmula ----------
     function hardcodeWeightColumns(weights) {
+        var sheet = window.State.getCurrentSheet();
+
         weights.forEach(function (wCol) {
-            if (window.State.isCalculatedCol(wCol)) {
-                window.State.clearColOperation(wCol);
+            if (!sheet.operations[wCol]) return;
+
+            // Hardcodear fila a fila: leer valor crudo actual y escribirlo
+            // como texto. Como las columnas calculadas no tienen valor por fila,
+            // lo que hacemos es: si la celda tiene valor crudo, se queda;
+            // si la columna tenía operación, se elimina la operación (pasa a cruda).
+            for (var r = 0; r < S.rows; r++) {
+                var key = window.State.getCellKey(r, wCol);
+                var v = sheet.data[key];
+                if (v !== undefined && v !== '') {
+                    sheet.data[key] = String(v);
+                }
             }
+            delete sheet.operations[wCol];
         });
+
+        window.State.saveState();
     }
 
     // ---------- Delegación ----------
@@ -154,8 +159,8 @@
         if (chipsContainer) {
             chipsContainer.addEventListener('click', function (e) {
                 var chip = e.target.closest('[data-weight-col]');
-                if (!chip || chip.classList.contains('disabled')) return;
-                toggleWeightChip(parseInt(chip.dataset.weightCol, 10));
+                if (!chip) return;
+                pickWeightAndApply(parseInt(chip.dataset.weightCol, 10));
             });
         }
 
