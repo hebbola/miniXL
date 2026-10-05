@@ -1,15 +1,14 @@
-/* sharing.js — Compartir por URL (#hash + LZ-string) y exportar CSV
+/* sharing.js — Compartir por WhatsApp + CSV
    Expone: window.Sharing */
 (function () {
     'use strict';
 
     var S = window.state;
 
-    // ---------- Codificar hoja actual ----------
-    function encodeCurrentSheet(customName) {
+    // ---------- Codificar hoja ----------
+    function encodeCurrentSheet() {
         var sheet = window.State.getCurrentSheet();
         var payload = {
-            n: customName || sheet.name,
             d: sheet.data || {},
             o: sheet.operations || {},
             k: sheet.keyboardMode || 'text'
@@ -31,10 +30,9 @@
             var now = new Date();
             var hh = String(now.getHours()).padStart(2, '0');
             var mm = String(now.getMinutes()).padStart(2, '0');
-            var baseName = incoming.n || 'Hoja compartida';
 
             var newSheet = window.State.addSheet(
-                baseName + ' (recibida ' + hh + ':' + mm + ')',
+                'Compartido ' + hh + ':' + mm,
                 incoming.d || {},
                 incoming.o || {},
                 incoming.k || 'text'
@@ -43,7 +41,7 @@
             history.replaceState(null, '', location.pathname + location.search);
 
             setTimeout(function () {
-                window.showModal('Hoja recibida', 'Se creó "' + newSheet.name + '" con los datos del enlace.');
+                window.showModal('Hoja recibida', 'Se creó "' + newSheet.name + '".');
             }, 250);
 
             return true;
@@ -53,67 +51,32 @@
         }
     }
 
-    // ---------- "Enviar por mensaje" ----------
+    // ---------- Enviar por WhatsApp ----------
     function shareByMessage() {
         window.Modal.hide();
-        var sheet = window.State.getCurrentSheet();
+        var payload = encodeCurrentSheet();
+        var base = location.origin + location.pathname;
+        var url = base + '#h=' + payload;
+        var text = encodeURIComponent('Hoja MiniXL: ' + url);
 
-        setTimeout(function () {
-            window.showModal('Enviar por mensaje', 'Nombre que verá el receptor:', {
-                showInput: true,
-                defaultValue: sheet.name,
-                callback: function (nombre) {
-                    if (!nombre || !nombre.trim()) return;
-                    var payload = encodeCurrentSheet(nombre.trim());
-                    var base = location.origin + location.pathname;
-                    var url = base + '#h=' + payload;
-                    var chars = url.length;
+        // Detectar móvil
+        var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-                    // Intentar Web Share API (abre la hoja nativa del móvil)
-                    if (navigator.share) {
-                        navigator.share({
-                            title: 'MiniXL',
-                            text: 'Hoja: ' + nombre.trim(),
-                            url: url
-                        }).catch(function (err) {
-                            // Si el usuario cancela, no hacemos nada
-                            if (err && err.name === 'AbortError') return;
-                            // Si falla por otra razón, caemos a copiar
-                            copyAndNotify(url, chars);
-                        });
-                    } else {
-                        copyAndNotify(url, chars);
-                    }
-                }
-            });
-        }, 100);
-    }
+        if (isMobile) {
+            // Abrir WhatsApp nativo con el enlace
+            var waUrl = 'whatsapp://send?text=' + text;
+            window.location.href = waUrl;
 
-    function copyAndNotify(url, chars) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(url).then(function () {
-                window.showModal('Enlace copiado',
-                    'Longitud: ' + chars + ' caracteres.\n\nPégalo en tu app de mensajería.');
-            }).catch(function () {
-                window.showModal('Enlace generado',
-                    'Copia manualmente:\n\n' + url);
-            });
+            // Fallback: si en 1.5s no cambió de app, ofrecer copiar
+            setTimeout(function () {
+                // Nada — si WhatsApp se abrió, el navegador queda en background.
+                // Si no, el usuario sigue aquí y puede copiar manualmente.
+            }, 1500);
         } else {
-            fallbackCopy(url);
-            window.showModal('Enlace copiado',
-                'Longitud: ' + chars + ' caracteres.');
+            // Desktop: abrir WhatsApp Web
+            var waWeb = 'https://wa.me/?text=' + text;
+            window.open(waWeb, '_blank');
         }
-    }
-
-    function fallbackCopy(text) {
-        var ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.position = 'fixed';
-        ta.style.left = '-9999px';
-        document.body.appendChild(ta);
-        ta.select();
-        try { document.execCommand('copy'); } catch (e) {}
-        document.body.removeChild(ta);
     }
 
     // ---------- Exportar CSV ----------
@@ -165,7 +128,7 @@
         var btnOpenShare = document.getElementById('btn-open-share');
         if (btnOpenShare) {
             btnOpenShare.addEventListener('click', function () {
-                window.showModal('Compartir', 'Elige el formato con el que deseas compartir o descargar:', {
+                window.showModal('Compartir', 'Elige el formato:', {
                     showShareOptions: true
                 });
             });

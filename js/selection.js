@@ -1,4 +1,4 @@
-/* selection.js — Selección de celdas, rangos, arrastre, marcos
+/* selection.js — Selección de celdas, rangos, arrastre (pointer events)
    Expone: window.Selection */
 (function () {
     'use strict';
@@ -7,7 +7,7 @@
 
     var dragState = null;
 
-    // ---------- Helpers de rango ----------
+    // ---------- Helpers ----------
     function getRange() {
         var a = S.selection.anchor;
         var f = S.selection.focus;
@@ -55,18 +55,16 @@
         var td = document.querySelector('td[data-row="' + r.maxRow + '"][data-col="' + r.maxCol + '"]');
         if (!td) return;
 
-        // Cuadrado arrastre — siempre visible en la celda inferior derecha
         var drag = document.createElement('div');
         drag.className = 'drag-handle';
         drag.dataset.handle = 'drag';
         td.appendChild(drag);
 
-        // Marcos tomables — solo si hay rango (>1 celda)
         if (!hasRange()) return;
 
-        var topTd = document.querySelector('td[data-row="' + r.minRow + '"][data-col="' + r.minCol + '"]');
-        var botTd = document.querySelector('td[data-row="' + r.maxRow + '"][data-col="' + r.minCol + '"]');
-        var leftTd = document.querySelector('td[data-row="' + r.minRow + '"][data-col="' + r.minCol + '"]');
+        var topTd   = document.querySelector('td[data-row="' + r.minRow + '"][data-col="' + r.minCol + '"]');
+        var botTd   = document.querySelector('td[data-row="' + r.maxRow + '"][data-col="' + r.minCol + '"]');
+        var leftTd  = document.querySelector('td[data-row="' + r.minRow + '"][data-col="' + r.minCol + '"]');
         var rightTd = document.querySelector('td[data-row="' + r.minRow + '"][data-col="' + r.maxCol + '"]');
 
         if (topTd)   topTd.appendChild(makeEdge('top'));
@@ -80,7 +78,6 @@
         removeHandles();
 
         var range = getRange();
-
         for (var r = range.minRow; r <= range.maxRow; r++) {
             for (var c = range.minCol; c <= range.maxCol; c++) {
                 var td = document.querySelector('td[data-row="' + r + '"][data-col="' + c + '"]');
@@ -93,7 +90,6 @@
             }
         }
 
-        // Cuadrado siempre, marcos solo con rango
         addHandles();
 
         if (window.UI && window.UI.updateHeaderMode) {
@@ -104,7 +100,7 @@
     // ---------- API ----------
     function setAnchor(row, col) {
         S.selection.anchor = { row: row, col: col };
-        S.selection.focus = { row: row, col: col };
+        S.selection.focus  = { row: row, col: col };
         paintSelection();
     }
 
@@ -126,7 +122,7 @@
             var tdRect = td.getBoundingClientRect();
             var containerRect = container.getBoundingClientRect();
             var targetLeft = container.scrollLeft + (tdRect.left - containerRect.left) - (containerRect.width / 2) + (tdRect.width / 2);
-            var targetTop = container.scrollTop + (tdRect.top - containerRect.top) - (containerRect.height / 2) + (tdRect.height / 2);
+            var targetTop  = container.scrollTop  + (tdRect.top  - containerRect.top)  - (containerRect.height / 2) + (tdRect.height / 2);
             container.scrollTo({
                 left: Math.max(0, targetLeft),
                 top: Math.max(0, targetTop),
@@ -146,9 +142,11 @@
         selectCell(S.selection.anchor.row, S.selection.anchor.col, false);
     }
 
-    // ---------- Arrastre ----------
-    function cellFromEvent(e) {
-        var td = e.target.closest ? e.target.closest('td[data-row]') : null;
+    // ---------- Detección de celda bajo un punto ----------
+    function cellFromPoint(x, y) {
+        var el = document.elementFromPoint(x, y);
+        if (!el) return null;
+        var td = el.closest ? el.closest('td[data-row]') : null;
         if (!td) return null;
         return {
             row: parseInt(td.dataset.row, 10),
@@ -156,47 +154,67 @@
         };
     }
 
-    function onMouseDown(e) {
-        if (e.button !== 0) return;
+    // ---------- Pointer Events ----------
+    function onPointerDown(e) {
+        // Solo botón principal (o touch)
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
 
         var handle = e.target.dataset ? e.target.dataset.handle : null;
 
         if (handle === 'drag') {
             e.preventDefault();
+            e.stopPropagation();
             dragState = {
                 mode: 'extend',
                 anchorRow: S.selection.anchor.row,
-                anchorCol: S.selection.anchor.col
+                anchorCol: S.selection.anchor.col,
+                pointerId: e.pointerId
             };
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
+            attachDragListeners();
             return;
         }
 
         if (handle) {
             e.preventDefault();
+            e.stopPropagation();
             var range = getRange();
             dragState = {
                 mode: 'move',
                 anchorRow: range.minRow,
                 anchorCol: range.minCol,
                 endRow: range.maxRow,
-                endCol: range.maxCol
+                endCol: range.maxCol,
+                pointerId: e.pointerId
             };
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
+            attachDragListeners();
             return;
         }
     }
 
-    function onMouseMove(e) {
+    function attachDragListeners() {
+        document.addEventListener('pointermove', onPointerMove);
+        document.addEventListener('pointerup', onPointerUp);
+        document.addEventListener('pointercancel', onPointerUp);
+    }
+
+    function detachDragListeners() {
+        document.removeEventListener('pointermove', onPointerMove);
+        document.removeEventListener('pointerup', onPointerUp);
+        document.removeEventListener('pointercancel', onPointerUp);
+    }
+
+    function onPointerMove(e) {
         if (!dragState) return;
-        var cell = cellFromEvent(e);
+        if (e.pointerId !== dragState.pointerId) return;
+
+        e.preventDefault();
+
+        var cell = cellFromPoint(e.clientX, e.clientY);
         if (!cell) return;
 
         if (dragState.mode === 'extend') {
             S.selection.anchor = { row: dragState.anchorRow, col: dragState.anchorCol };
-            S.selection.focus = { row: cell.row, col: cell.col };
+            S.selection.focus  = { row: cell.row, col: cell.col };
             paintSelection();
         } else if (dragState.mode === 'move') {
             var rSpan = dragState.endRow - dragState.anchorRow;
@@ -211,17 +229,19 @@
         }
     }
 
-    function onMouseUp() {
+    function onPointerUp(e) {
+        if (dragState && e.pointerId !== dragState.pointerId) return;
         dragState = null;
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
+        detachDragListeners();
     }
 
     // ---------- Init ----------
     function bindDelegatedEvents() {
         var table = document.getElementById('spreadsheet-table');
         if (!table) return;
-        table.addEventListener('mousedown', onMouseDown);
+        table.addEventListener('pointerdown', onPointerDown);
+        // Deshabilitar gestos nativos de scroll sobre los handles
+        table.style.touchAction = 'pan-x pan-y';
     }
 
     setTimeout(function () { setAnchor(0, 0); }, 0);
