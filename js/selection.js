@@ -5,7 +5,7 @@
 
     var S = window.state;
 
-    var dragState = null; // { mode: 'extend' | 'move', startRow, startCol, anchorRow, anchorCol, endRow, endCol }
+    var dragState = null;
 
     // ---------- Helpers de rango ----------
     function getRange() {
@@ -30,11 +30,9 @@
         return a.row !== f.row || a.col !== f.col;
     }
 
-    function isSingleCell() {
-        return !hasRange();
-    }
+    function isSingleCell() { return !hasRange(); }
 
-    // ---------- Pintado visual ----------
+    // ---------- Pintado ----------
     function clearHighlight() {
         document.querySelectorAll('td.cell-selected, td.cell-in-range').forEach(function (td) {
             td.classList.remove('cell-selected', 'cell-in-range');
@@ -45,35 +43,36 @@
         document.querySelectorAll('.drag-handle, .edge-handle').forEach(function (el) { el.remove(); });
     }
 
-    function addHandles() {
-        // Solo se añaden a la celda inferior derecha del rango
-        var r = getRange();
-        var td = document.querySelector('td[data-row="' + r.maxRow + '"][data-col="' + r.maxCol + '"]');
-        if (!td) return;
-
-        // Cuadrado arrastre (esquina inferior derecha)
-        var drag = document.createElement('div');
-        drag.className = 'drag-handle';
-        drag.dataset.handle = 'drag';
-        td.appendChild(drag);
-
-        // Marcos tomables (4 bordes del rango)
-        var topTd = document.querySelector('td[data-row="' + r.minRow + '"][data-col="' + r.minCol + '"]');
-        var botTd = document.querySelector('td[data-row="' + r.maxRow + '"][data-col="' + r.minCol + '"]');
-        var leftTd = document.querySelector('td[data-row="' + r.minRow + '"][data-col="' + r.minCol + '"]');
-        var rightTd = document.querySelector('td[data-row="' + r.minRow + '"][data-col="' + r.maxCol + '"]');
-
-        if (topTd)    topTd.appendChild(makeEdge('top'));
-        if (botTd)    botTd.appendChild(makeEdge('bottom'));
-        if (leftTd)   leftTd.appendChild(makeEdge('left'));
-        if (rightTd)  rightTd.appendChild(makeEdge('right'));
-    }
-
     function makeEdge(side) {
         var el = document.createElement('div');
         el.className = 'edge-handle ' + side;
         el.dataset.handle = side;
         return el;
+    }
+
+    function addHandles() {
+        var r = getRange();
+        var td = document.querySelector('td[data-row="' + r.maxRow + '"][data-col="' + r.maxCol + '"]');
+        if (!td) return;
+
+        // Cuadrado arrastre — siempre visible en la celda inferior derecha
+        var drag = document.createElement('div');
+        drag.className = 'drag-handle';
+        drag.dataset.handle = 'drag';
+        td.appendChild(drag);
+
+        // Marcos tomables — solo si hay rango (>1 celda)
+        if (!hasRange()) return;
+
+        var topTd = document.querySelector('td[data-row="' + r.minRow + '"][data-col="' + r.minCol + '"]');
+        var botTd = document.querySelector('td[data-row="' + r.maxRow + '"][data-col="' + r.minCol + '"]');
+        var leftTd = document.querySelector('td[data-row="' + r.minRow + '"][data-col="' + r.minCol + '"]');
+        var rightTd = document.querySelector('td[data-row="' + r.minRow + '"][data-col="' + r.maxCol + '"]');
+
+        if (topTd)   topTd.appendChild(makeEdge('top'));
+        if (botTd)   botTd.appendChild(makeEdge('bottom'));
+        if (leftTd)  leftTd.appendChild(makeEdge('left'));
+        if (rightTd) rightTd.appendChild(makeEdge('right'));
     }
 
     function paintSelection() {
@@ -94,18 +93,15 @@
             }
         }
 
-        // Marcos solo cuando hay rango (no en 1 celda)
-        if (hasRange()) {
-            addHandles();
-        }
+        // Cuadrado siempre, marcos solo con rango
+        addHandles();
 
-        // Notificar cambio de modo al header
         if (window.UI && window.UI.updateHeaderMode) {
             window.UI.updateHeaderMode(hasRange());
         }
     }
 
-    // ---------- API principal ----------
+    // ---------- API ----------
     function setAnchor(row, col) {
         S.selection.anchor = { row: row, col: col };
         S.selection.focus = { row: row, col: col };
@@ -150,7 +146,7 @@
         selectCell(S.selection.anchor.row, S.selection.anchor.col, false);
     }
 
-    // ---------- Arrastre (mouse) ----------
+    // ---------- Arrastre ----------
     function cellFromEvent(e) {
         var td = e.target.closest ? e.target.closest('td[data-row]') : null;
         if (!td) return null;
@@ -161,10 +157,8 @@
     }
 
     function onMouseDown(e) {
-        // Botón izquierdo solo
         if (e.button !== 0) return;
 
-        // ¿Es handle?
         var handle = e.target.dataset ? e.target.dataset.handle : null;
 
         if (handle === 'drag') {
@@ -172,9 +166,7 @@
             dragState = {
                 mode: 'extend',
                 anchorRow: S.selection.anchor.row,
-                anchorCol: S.selection.anchor.col,
-                startRow: S.selection.anchor.row,
-                startCol: S.selection.anchor.col
+                anchorCol: S.selection.anchor.col
             };
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', onMouseUp);
@@ -186,8 +178,6 @@
             var range = getRange();
             dragState = {
                 mode: 'move',
-                startRow: e.clientY,
-                startCol: e.clientX,
                 anchorRow: range.minRow,
                 anchorCol: range.minCol,
                 endRow: range.maxRow,
@@ -197,17 +187,10 @@
             document.addEventListener('mouseup', onMouseUp);
             return;
         }
-
-        // Click normal dentro del grid: si es celda, focus
-        var cell = cellFromEvent(e);
-        if (cell && !e.target.classList.contains('cell-input')) {
-            // si el usuario está escribiendo, dejamos el input recibir el click
-        }
     }
 
     function onMouseMove(e) {
         if (!dragState) return;
-
         var cell = cellFromEvent(e);
         if (!cell) return;
 
@@ -216,24 +199,15 @@
             S.selection.focus = { row: cell.row, col: cell.col };
             paintSelection();
         } else if (dragState.mode === 'move') {
-            var dRow = 0, dCol = 0;
-            // Calcular desplazamiento en base a delta de píxeles → celdas
-            var tdRef = document.querySelector('td[data-row="' + cell.row + '"][data-col="' + cell.col + '"]');
-            if (tdRef) {
-                var rect = tdRef.getBoundingClientRect();
-                // Cuántas celdas se han movido desde el punto de partida hasta aquí
-                // Estimación: usamos la celda bajo el cursor como nueva ancla
-                // más simple: mover el rectángulo entero
-                var r = dragState.endRow - dragState.anchorRow;
-                var c = dragState.endCol - dragState.anchorCol;
+            var rSpan = dragState.endRow - dragState.anchorRow;
+            var cSpan = dragState.endCol - dragState.anchorCol;
 
-                var newAnchorRow = Math.max(0, Math.min(S.rows - 1 - r, cell.row));
-                var newAnchorCol = Math.max(0, Math.min(S.cols - 1 - c, cell.col));
+            var newAnchorRow = Math.max(0, Math.min(S.rows - 1 - rSpan, cell.row));
+            var newAnchorCol = Math.max(0, Math.min(S.cols - 1 - cSpan, cell.col));
 
-                S.selection.anchor = { row: newAnchorRow, col: newAnchorCol };
-                S.selection.focus  = { row: newAnchorRow + r, col: newAnchorCol + c };
-                paintSelection();
-            }
+            S.selection.anchor = { row: newAnchorRow, col: newAnchorCol };
+            S.selection.focus  = { row: newAnchorRow + rSpan, col: newAnchorCol + cSpan };
+            paintSelection();
         }
     }
 

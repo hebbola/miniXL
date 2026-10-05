@@ -7,40 +7,51 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
     height: 100%;
     border: none;
     outline: none;
+    box-shadow: none;
+    -webkit-appearance: none;
+    appearance: none;
     background: transparent;
     padding: 0.25rem 2rem 0.25rem 0.5rem;
     font-size: 0.875rem;
     color: #1e293b;
+    border-radius: 0;
 }
 
-/* Selección: celda activa (focus) con marco pine idéntico al de antes */
+.cell-input:focus,
+.cell-input:focus-visible {
+    outline: none;
+    box-shadow: none;
+    border: none;
+}
+
+/* Celda activa */
 .cell-selected {
     box-shadow: inset 0 0 0 2px #1e6b52 !important;
     background-color: #f2f8f6 !important;
     position: relative;
 }
 
-/* Celdas dentro del rango (excepto la activa) */
 .cell-in-range {
     background-color: #e0efe9 !important;
 }
 
-/* Cuadrado de arrastre estilo Excel — esquina inferior derecha */
+/* Cuadrado de arrastre */
 .cell-selected .drag-handle {
     position: absolute;
-    right: -4px;
-    bottom: -4px;
-    width: 8px;
-    height: 8px;
+    right: -5px;
+    bottom: -5px;
+    width: 10px;
+    height: 10px;
     background: #1e6b52;
-    border: 1px solid #fff;
-    border-radius: 1px;
+    border: 2px solid #fff;
+    border-radius: 2px;
     cursor: crosshair;
-    z-index: 10;
+    z-index: 20;
     display: block;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
 }
 
-/* Marco tomable desde los bordes */
+/* Marcos tomables */
 .cell-selected .edge-handle {
     position: absolute;
     z-index: 9;
@@ -52,9 +63,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
 .cell-selected .edge-handle.right  { right: 0;  top: 6px;   bottom: 6px; width: 4px;  }
 
 /* Franja de pesos */
-#weights-strip {
-    animation: slideDown 0.18s ease-out;
-}
+#weights-strip { animation: slideDown 0.18s ease-out; }
 @keyframes slideDown {
     from { opacity: 0; transform: translateY(-4px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -79,9 +88,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
     transition: all 0.15s;
     user-select: none;
 }
-.weight-chip:hover {
-    opacity: 0.85;
-}
+.weight-chip:hover { opacity: 0.85; }
 .weight-chip.selected {
     opacity: 1;
     border-color: #1e6b52;
@@ -95,7 +102,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
     text-decoration: line-through;
 }
 
-/* Feedback copiar / cortar */
+/* Flash copy/cut */
 @keyframes flashCopy {
     0%   { background-color: #bbf7d0; }
     100% { background-color: transparent; }
@@ -107,7 +114,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
 .cell-copy-flash { animation: flashCopy 0.4s ease-out; }
 .cell-cut-flash  { animation: flashCut 0.4s ease-out; }
 
-/* Teclado numérico (botón 123) */
+/* Botón teclado numérico */
 .keyboard-toggle-btn {
     position: absolute;
     right: 4px;
@@ -140,10 +147,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
 .cell-selected .keyboard-toggle-btn { display: flex; }
 
 input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
+input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
 @media (prefers-color-scheme: dark) {
     body, .bg-slate-100 { background-color: #0f172a !important; color: #e2e8f0; }
@@ -166,11 +170,7 @@ input::-webkit-inner-spin-button {
 
     .cell-selected .drag-handle { background: #4ade9b; border-color: #0f172a; }
 
-    .weight-chip {
-        background: #1f2937;
-        border-color: #334155;
-        color: #94a3b8;
-    }
+    .weight-chip { background: #1f2937; border-color: #334155; color: #94a3b8; }
     .weight-chip.selected {
         background: #12302a;
         border-color: #4ade9b;
