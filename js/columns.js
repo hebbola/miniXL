@@ -6,8 +6,8 @@
     var S = window.state;
 
     var activeCol = null;
-    var selectedWeights = [];  // columnas elegidas como peso
-    var uiState = 'idle';      // 'idle' | 'weights-open'
+    var selectedWeights = [];
+    var uiState = 'idle';
 
     // ---------- Abrir modal ----------
     function openOperationModal(colIndex) {
@@ -24,10 +24,9 @@
 
         resetOperationsUI();
 
-        // Precargar pesos si la columna ya es WAVG
         var current = window.State.getOp(colIndex);
         if (current && current.op === 'WAVG' && current.weights) {
-            selectedWeights = current.weights.slice();
+            selectedWeights = current.weights.slice(0, 1); // solo una
             openWeightsUI();
             renderChips();
         }
@@ -36,11 +35,8 @@
     function resetOperationsUI() {
         var strip = document.getElementById('weights-strip');
         if (strip) strip.classList.add('hidden');
-        var container = document.getElementById('modal-operations-container');
-        if (container) container.classList.remove('space-y-4');
     }
 
-    // ---------- Abrir franja de pesos ----------
     function openWeightsUI() {
         uiState = 'weights-open';
         var strip = document.getElementById('weights-strip');
@@ -48,7 +44,7 @@
         renderChips();
     }
 
-    // ---------- Renderizar chips de columna ----------
+    // ---------- Chips ----------
     function renderChips() {
         var container = document.getElementById('weights-chips');
         if (!container) return;
@@ -57,10 +53,8 @@
         var html = '';
 
         for (var c = 0; c < S.cols; c++) {
-            // No puede ser peso ella misma
             if (c === activeCol) continue;
 
-            // No puede ser peso si es una columna calculada
             var isCalc = !!sheet.operations[c];
             var isSelected = selectedWeights.indexOf(c) !== -1;
 
@@ -76,59 +70,34 @@
         container.innerHTML = html;
     }
 
-    // ---------- Click en chip ----------
+    // ---------- Toggle chip (único) ----------
     function toggleWeightChip(colIndex) {
         var sheet = window.State.getCurrentSheet();
-        if (sheet.operations[colIndex]) return; // bloqueado
+        if (sheet.operations[colIndex]) return;
 
-        var i = selectedWeights.indexOf(colIndex);
-        if (i === -1) selectedWeights.push(colIndex);
-        else selectedWeights.splice(i, 1);
+        if (selectedWeights.length === 1 && selectedWeights[0] === colIndex) {
+            selectedWeights = [];
+        } else {
+            selectedWeights = [colIndex];
+        }
 
         renderChips();
     }
 
-    // ---------- Hardcodear columnas que van a ser peso ----------
-    function hardcodeWeightColumns(weights) {
-        var sheet = window.State.getCurrentSheet();
-
-        weights.forEach(function (wCol) {
-            // Si ya es calculada → hardcodear
-            if (sheet.operations[wCol]) {
-                var opObj = window.State.getOp(wCol);
-                // Recalcular fila a fila SOLO si es operación fila-a-fila (no aplica aquí)
-                // Como las ops actuales (SUM/AVG/etc) son de columna, "hardcodear" una
-                // columna calculada por columna no tiene sentido fila a fila.
-                // En este diseño, las columnas calculadas no aportan valor por fila,
-                // así que hardcodeamos cada fila con el valor crudo que tuviera.
-                // En la práctica: si la columna estaba calculada, sus celdas están vacías.
-                // → dejamos como están y solo borramos la operación.
-                window.State.clearColOperation(wCol);
-            }
-        });
-    }
-
-    // ---------- Aplicar operación elegida ----------
+    // ---------- Aplicar operación ----------
     function selectColumnOperation(op) {
         if (op === 'WAVG') {
-            // Mostrar franja de pesos, no cerrar modal
             if (uiState !== 'weights-open') {
                 openWeightsUI();
-                return;
             }
-            // Ya estaba abierta: no aplicar aún; el usuario debe pulsar Aceptar
             return;
         }
-
-        // Operación normal: aplicar directo y cerrar
         applyOperation({ op: op });
         window.Modal.hide();
     }
 
-    // ---------- Botón Aceptar del modal para WAVG ----------
     function confirmWAVG() {
         if (!selectedWeights.length) {
-            // Sin pesos → cancelar WAVG, no hacer nada
             window.Modal.hide();
             return;
         }
@@ -139,7 +108,6 @@
     function applyOperation(opObj) {
         if (activeCol === null) return;
 
-        // Si va a llevar pesos, primero hay que liberar las columnas peso
         if (opObj.op === 'WAVG' && opObj.weights && opObj.weights.length) {
             hardcodeWeightColumns(opObj.weights);
         }
@@ -156,9 +124,16 @@
         uiState = 'idle';
     }
 
-    // ---------- Delegación de eventos ----------
+    function hardcodeWeightColumns(weights) {
+        weights.forEach(function (wCol) {
+            if (window.State.isCalculatedCol(wCol)) {
+                window.State.clearColOperation(wCol);
+            }
+        });
+    }
+
+    // ---------- Delegación ----------
     function bindDelegatedEvents() {
-        // Click en header de columna → abrir modal
         document.addEventListener('click', function (e) {
             var el = e.target.closest('[data-col-op]');
             if (!el) return;
@@ -166,7 +141,6 @@
             openOperationModal(c);
         });
 
-        // Click en botones de operación del modal
         var opsContainer = document.getElementById('modal-operations-container');
         if (opsContainer) {
             opsContainer.addEventListener('click', function (e) {
@@ -176,7 +150,6 @@
             });
         }
 
-        // Click en chips de peso (delegado)
         var chipsContainer = document.getElementById('weights-chips');
         if (chipsContainer) {
             chipsContainer.addEventListener('click', function (e) {
@@ -186,10 +159,8 @@
             });
         }
 
-        // Interceptar botón Aceptar del modal cuando WAVG está abierto
         var modalOk = document.getElementById('modal-ok');
         if (modalOk) {
-            // Usamos captura para ejecutar antes que el handler de modal.js
             modalOk.addEventListener('click', function (e) {
                 if (uiState === 'weights-open') {
                     e.stopImmediatePropagation();
