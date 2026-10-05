@@ -22,49 +22,7 @@
             }
         }
     </script>
-    <script>
-    /* LZ-string minificado (lz-string 1.5.0, MIT) - compressToEncodedURIComponent / decompressFromEncodedURIComponent */
-    var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",e={};function t(r,o){if(!e[r]){e[r]={};for(var n=0;n<r.length;n++)e[r][r.charAt(n)]=n}return e[r][o]}var a={compressToBase64:function(r){if(null==r)return"";var n=a._compress(r,6,function(r){return o.charAt(r)});switch(n.length%4){default:case 0:return n;case 1:return n+"===";case 2:return n+"==";case 3:return n+"="}},decompressFromBase64:function(r){return null==r?"":""==r?null:a._decompress(r.length,32,function(n){return t(o,r.charAt(n))})},compressToUTF16:function(r){return null==r?"":a._compress(r,15,function(r){return String.fromCharCode(r+32)})+" "},decompressFromUTF16:function(r){return null==r?"":""==r?null:a._decompress(r.length,16384,function(o){return r.charCodeAt(o)-32})},compressToUint8Array:function(r){for(var o=a.compress(r),n=new Uint8Array(2*o.length),e=0,t=o.length;e<t;e++){var s=o.charCodeAt(e);n[2*e]=s>>>8,n[2*e+1]=s%256}return n},decompressFromUint8Array:function(r){if(null==r)return a.decompress(r);for(var o=new Array(r.length/2),n=0,e=o.length;n<e;n++)o[n]=256*r[2*n]+r[2*n+1];var t=[];return o.forEach(function(r){t.push(String.fromCharCode(r))}),a.decompress(t.join(""))},compressToEncodedURIComponent:function(r){return null==r?"":a._compress(r,6,function(r){return n.charAt(r)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:(r=r.replace(/ /g,"+"),a._decompress(r.length,32,function(o){return t(n,r.charAt(o))}))},compress:function(r){return a._compress(r,16,function(r){return String.fromCharCode(r)})},_compress:function(r,o,n){if(null==r)return"";var e,t,a={},i={},s="",c="",f="",u=2,p=3,l=2,d=[],h=0,v=0;for(a=0;a<r.length;a+=1)if(s=r.charAt(a),Object.prototype.hasOwnProperty.call(i,s)||(i[s]=p++,d.push(s)),c=f+s,Object.prototype.hasOwnProperty.call(a2=c,i))f=c;else{if(Object.prototype.hasOwnProperty.call(i,f)){if(f.charCodeAt(0)<256){for(e=0;e<l;e++)h<<=1,v==o-1?(v=0,d.push(n(h)),h=0):v++;for(a2=f.charCodeAt(0),e=0;e<8;e++)h=h<<1|1&a2,v==o-1?(v=0,d.push(n(h)),h=0):v++,a2>>=1}else{for(a2=1,e=0;e<l;e++)h=h<<1|a2,v==o-1?(v=0,d.push(n(h)),h=0):v++,a2=0;for(a2=f.charCodeAt(0),e=0;e<16;e++)h=h<<1|1&a2,v==o-1?(v=0,d.push(n(h)),h=0):v++,a2>>=1}0==--u&&(u=Math.pow(2,l),l++),delete i[f]}else for(a2=i[f],e=0;e<l;e++)h=h<<1|1&a2,v==o-1?(v=0,d.push(n(h)),h=0):v++,a2>>=1;0==--u&&(u=Math.pow(2,l),l++),i[c]=p++,f=String(s)}if(""!==f){if(Object.prototype.hasOwnProperty.call(i,f)){if(f.charCodeAt(0)<256){for(e=0;e<l;e++)h<<=1,v==o-1?(v=0,d.push(n(h)),h=0):v++;for(a2=f.charCodeAt(0),e=0;e<8;e++)h=h<<1|1&a2,v==o-1?(v=0,d.push(n(h)),h=0):v++,a2>>=1}else{for(a2=1,e=0;e<l;e++)h=h<<1|a2,v==o-1?(v=0,d.push(n(h)),h=0):v++,a2=0;for(a2=f.charCodeAt(0),e=0;e<16;e++)h=h<<1|1&a2,v==o-1?(v=0,d.push(n(h)),h=0):v++,a2>>=1}0==--u&&(u=Math.pow(2,l),l++),delete i[f]}else for(a2=i[f],e=0;e<l;e++)h=h<<1|1&a2,v==o-1?(v=0,d.push(n(h)),h=0):v++,a2>>=1;0==--u&&(u=Math.pow(2,l),l++)}for(a2=2,e=0;e<l;e++)h=h<<1|1&a2,v==o-1?(v=0,d.push(n(h)),h=0):v++,a2>>=1;for(;;){if(h<<=1,v==o-1){d.push(n(h));break}v++}return d.join("")},_decompress:function(o,n,e){var t,a,i,s,c,f,u,p=[],l=4,d=4,h=3,v="",g=[],y={val:e(0),position:n,index:1};for(t=0;t<3;t+=1)p[t]=t;for(i=0,s=Math.pow(2,2),f=1;f!=s;)c=y.val&y.position,y.position>>=1,0==y.position&&(y.position=n,y.val=e(y.index++)),i|=(c>0?1:0)*f,f<<=1;switch(i){case 0:for(i=0,s=Math.pow(2,8),f=1;f!=s;)c=y.val&y.position,y.position>>=1,0==y.position&&(y.position=n,y.val=e(y.index++)),i|=(c>0?1:0)*f,f<<=1;u=r(i);break;case 1:for(i=0,s=Math.pow(2,16),f=1;f!=s;)c=y.val&y.position,y.position>>=1,0==y.position&&(y.position=n,y.val=e(y.index++)),i|=(c>0?1:0)*f,f<<=1;u=r(i);break;case 2:return""}for(p[3]=u,a=u,g.push(u);;){if(y.index>o)return"";for(i=0,s=Math.pow(2,h),f=1;f!=s;)c=y.val&y.position,y.position>>=1,0==y.position&&(y.position=n,y.val=e(y.index++)),i|=(c>0?1:0)*f,f<<=1;switch(u=i){case 0:for(i=0,s=Math.pow(2,8),f=1;f!=s;)c=y.val&y.position,y.position>>=1,0==y.position&&(y.position=n,y.val=e(y.index++)),i|=(c>0?1:0)*f,f<<=1;p[d++]=r(i),u=d-1,l--;break;case 1:for(i=0,s=Math.pow(2,16),f=1;f!=s;)c=y.val&y.position,y.position>>=1,0==y.position&&(y.position=n,y.val=e(y.index++)),i|=(c>0?1:0)*f,f<<=1;p[d++]=r(i),u=d-1,l--;break;case 2:return g.join("")}if(0==l&&(l=Math.pow(2,h),h++),p[u])v=p[u];else{if(u!==d)return null;v=a+a.charAt(0)}g.push(v),p[d++]=a+v.charAt(0),l--,a=v,0==l&&(l=Math.pow(2,h),h++)}}};return a}();
-    </script>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        .cell-container { position: relative; width: 100%; height: 100%; }
-        .cell-input {
-            width: 100%; height: 100%; border: none; outline: none;
-            background: transparent; padding: 0.25rem 2rem 0.25rem 0.5rem;
-            font-size: 0.875rem; color: #1e293b;
-        }
-        .cell-selected { box-shadow: inset 0 0 0 2px #1e6b52 !important; background-color: #f2f8f6 !important; }
-        .keyboard-toggle-btn {
-            position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
-            width: 24px; height: 20px; border-radius: 4px;
-            background-color: transparent; color: #94a3b8; font-size: 10px; font-weight: 600;
-            display: none; align-items: center; justify-content: center; cursor: pointer;
-            z-index: 5; transition: all 0.2s; letter-spacing: -0.5px;
-        }
-        .keyboard-toggle-btn.active-numeric { color: #1e6b52; background-color: rgba(30, 107, 82, 0.08); font-weight: 700; }
-        .keyboard-toggle-btn:hover { color: #475569; background-color: rgba(0, 0, 0, 0.04); }
-        .cell-selected .keyboard-toggle-btn { display: flex; }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        @media (prefers-color-scheme: dark) {
-            body, .bg-slate-100 { background-color: #0f172a !important; color: #e2e8f0; }
-            .bg-slate-200, .bg-slate-300 { background-color: #1e293b !important; }
-            .bg-white { background-color: #111827 !important; }
-            .bg-slate-50, .hover\:bg-slate-50:hover { background-color: #1f2937 !important; }
-            .hover\:bg-slate-100:hover { background-color: #273449 !important; }
-            .bg-pine-light, .hover\:bg-pine-light:hover, .hover\:bg-pine-light\/80:hover { background-color: #12302a !important; }
-            .border-slate-100, .border-slate-200, .border-slate-300 { border-color: #334155 !important; }
-            .text-slate-800, .text-slate-700, .text-slate-600 { color: #e2e8f0 !important; }
-            .text-slate-500, .text-slate-400 { color: #94a3b8 !important; }
-            .text-pine-green { color: #4ade9b !important; }
-            .group:hover .group-hover\:text-white { color: #fff !important; }
-            .cell-input { color: #e2e8f0; }
-            .cell-selected { background-color: #12302a !important; box-shadow: inset 0 0 0 2px #4ade9b !important; }
-            .keyboard-toggle-btn.active-numeric { color: #4ade9b; background-color: rgba(74,222,155,.12); }
-            .bg-pine-green { background-color: #14503d !important; }
-            input { color-scheme: dark; }
-        }
-    </style>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="bg-slate-100 text-slate-800 h-screen flex flex-col overflow-hidden">
 
@@ -77,35 +35,35 @@
             </div>
             <div id="modal-sheets-container" class="hidden max-h-60 overflow-y-auto space-y-2 pr-1"></div>
             <div id="modal-operations-container" class="hidden grid grid-cols-2 gap-2 pt-2">
-                <button onclick="gridApp.selectColumnOperationModal('SUM')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-pine-light hover:border-pine-green transition group text-center space-y-1">
+                <button data-op="SUM" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-pine-light hover:border-pine-green transition group text-center space-y-1">
                     <div class="w-8 h-8 rounded-lg bg-pine-green/10 text-pine-green flex items-center justify-center group-hover:bg-pine-green group-hover:text-white transition font-bold text-sm">Σ</div>
                     <span class="text-xs font-semibold text-slate-800">Suma</span>
                 </button>
-                <button onclick="gridApp.selectColumnOperationModal('AVG')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-pine-light hover:border-pine-green transition group text-center space-y-1">
+                <button data-op="AVG" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-pine-light hover:border-pine-green transition group text-center space-y-1">
                     <div class="w-8 h-8 rounded-lg bg-pine-green/10 text-pine-green flex items-center justify-center group-hover:bg-pine-green group-hover:text-white transition font-bold text-sm">Ø</div>
                     <span class="text-xs font-semibold text-slate-800">Promedio</span>
                 </button>
-                <button onclick="gridApp.selectColumnOperationModal('MAX')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-pine-light hover:border-pine-green transition group text-center space-y-1">
+                <button data-op="MAX" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-pine-light hover:border-pine-green transition group text-center space-y-1">
                     <div class="w-8 h-8 rounded-lg bg-pine-green/10 text-pine-green flex items-center justify-center group-hover:bg-pine-green group-hover:text-white transition font-bold text-sm">↑</div>
                     <span class="text-xs font-semibold text-slate-800">Máximo</span>
                 </button>
-                <button onclick="gridApp.selectColumnOperationModal('MIN')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-pine-light hover:border-pine-green transition group text-center space-y-1">
+                <button data-op="MIN" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-pine-light hover:border-pine-green transition group text-center space-y-1">
                     <div class="w-8 h-8 rounded-lg bg-pine-green/10 text-pine-green flex items-center justify-center group-hover:bg-pine-green group-hover:text-white transition font-bold text-sm">↓</div>
                     <span class="text-xs font-semibold text-slate-800">Mínimo</span>
                 </button>
-                <button onclick="gridApp.selectColumnOperationModal('COUNT')" class="col-span-2 flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-pine-light hover:border-pine-green transition group text-center space-y-1">
+                <button data-op="COUNT" class="col-span-2 flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-pine-light hover:border-pine-green transition group text-center space-y-1">
                     <div class="w-8 h-8 rounded-lg bg-pine-green/10 text-pine-green flex items-center justify-center group-hover:bg-pine-green group-hover:text-white transition font-bold text-sm">#</div>
                     <span class="text-xs font-semibold text-slate-800">Conteo</span>
                 </button>
             </div>
             <div id="modal-share-container" class="hidden grid grid-cols-2 gap-3 pt-2">
-                <button onclick="gridApp.downloadCSV()" class="flex flex-col items-center justify-center p-4 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-pine-light hover:border-pine-green transition group text-center space-y-2">
+                <button id="btn-download-csv" class="flex flex-col items-center justify-center p-4 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-pine-light hover:border-pine-green transition group text-center space-y-2">
                     <div class="w-12 h-12 rounded-xl bg-pine-green/10 text-pine-green flex items-center justify-center group-hover:bg-pine-green group-hover:text-white transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                     </div>
                     <span class="text-xs font-semibold text-slate-700">Descargar CSV</span>
                 </button>
-                <button onclick="gridApp.shareByMessage()" class="flex flex-col items-center justify-center p-4 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-pine-light hover:border-pine-green transition group text-center space-y-2">
+                <button id="btn-share-message" class="flex flex-col items-center justify-center p-4 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-pine-light hover:border-pine-green transition group text-center space-y-2">
                     <div class="w-12 h-12 rounded-xl bg-pine-green/10 text-pine-green flex items-center justify-center group-hover:bg-pine-green group-hover:text-white transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
                     </div>
@@ -124,14 +82,14 @@
             <span class="font-extrabold text-lg tracking-wider text-white px-1">TELARH</span>
         </div>
         <div class="absolute left-1/2 transform -translate-x-1/2">
-            <div class="bg-white/15 px-3.5 py-1.5 rounded-full flex items-center space-x-2 border border-white/20 cursor-pointer hover:bg-white/25 transition shadow-sm" onclick="gridApp.openSheetsManagerModal()">
+            <div id="btn-sheets-manager" class="bg-white/15 px-3.5 py-1.5 rounded-full flex items-center space-x-2 border border-white/20 cursor-pointer hover:bg-white/25 transition shadow-sm">
                 <svg class="w-4 h-4 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                 <span id="current-sheet-label" class="font-semibold text-sm">Hoja 1</span>
                 <svg class="w-3.5 h-3.5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
             </div>
         </div>
         <div class="flex items-center space-x-1.5 sm:space-x-2">
-            <button onclick="gridApp.openShareModal()" class="w-9 h-9 sm:w-auto sm:px-3.5 sm:py-1.5 text-xs font-medium bg-white/10 hover:bg-white/20 rounded-full transition flex items-center justify-center space-x-1.5 border border-white/15 shadow-sm" title="Compartir">
+            <button id="btn-open-share" class="w-9 h-9 sm:w-auto sm:px-3.5 sm:py-1.5 text-xs font-medium bg-white/10 hover:bg-white/20 rounded-full transition flex items-center justify-center space-x-1.5 border border-white/15 shadow-sm" title="Compartir">
                 <svg class="w-4 h-4 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
                 <span class="hidden sm:inline">Compartir</span>
             </button>
@@ -142,234 +100,17 @@
         <table id="spreadsheet-table" class="border-collapse bg-white shadow-sm"></table>
     </div>
 
-    <script>
-        function showModal(title, message, options = {}) {
-            const { showInput = false, showSheetsList = false, showShareOptions = false, showOperationsOptions = false, callback = null, defaultValue = '' } = options;
-            const modal = document.getElementById('custom-modal');
-            const modalTitle = document.getElementById('modal-title');
-            const modalMsg = document.getElementById('modal-message');
-            const inputContainer = document.getElementById('modal-input-container');
-            const inputField = document.getElementById('modal-input');
-            const sheetsContainer = document.getElementById('modal-sheets-container');
-            const operationsContainer = document.getElementById('modal-operations-container');
-            const shareContainer = document.getElementById('modal-share-container');
-            const btnOk = document.getElementById('modal-ok');
-            const btnCancel = document.getElementById('modal-cancel');
-
-            btnOk.innerText = 'Aceptar';
-            modalTitle.innerText = title;
-            modalMsg.innerText = message;
-            inputField.value = defaultValue;
-
-            if (showInput || showSheetsList || showShareOptions || showOperationsOptions || callback) {
-                btnCancel.classList.remove('hidden');
-            } else {
-                btnCancel.classList.add('hidden');
-            }
-
-            if (showInput) inputContainer.classList.remove('hidden');
-            else inputContainer.classList.add('hidden');
-
-            if (showSheetsList) sheetsContainer.classList.remove('hidden');
-            else sheetsContainer.classList.add('hidden');
-
-            if (showOperationsOptions) { operationsContainer.classList.remove('hidden'); btnOk.classList.add('hidden'); }
-            else { operationsContainer.classList.add('hidden'); btnOk.classList.remove('hidden'); }
-
-            if (showShareOptions) { shareContainer.classList.remove('hidden'); btnOk.classList.add('hidden'); }
-            else { shareContainer.classList.add('hidden'); btnOk.classList.remove('hidden'); }
-
-            modal.classList.remove('hidden');
-            if (showInput) setTimeout(() => { inputField.focus(); inputField.select(); }, 50);
-
-            const newOk = btnOk.cloneNode(true);
-            const newCancel = btnCancel.cloneNode(true);
-            btnOk.parentNode.replaceChild(newOk, btnOk);
-            btnCancel.parentNode.replaceChild(newCancel, btnCancel);
-
-            newOk.addEventListener('click', () => {
-                modal.classList.add('hidden');
-                if (callback) {
-                    if (showInput) callback(inputField.value);
-                    else callback(true);
-                }
-            });
-
-            newCancel.addEventListener('click', () => {
-                modal.classList.add('hidden');
-                if (callback && (showInput || showSheetsList || showShareOptions || showOperationsOptions)) callback(null);
-                else if (callback) callback(false);
-            });
-        }
-
-        class ExcelGridApp {
-            constructor(cols = 20, rows = 40) {
-                this.cols = cols;
-                this.rows = rows;
-                this.selectedRow = 0;
-                this.selectedCol = 0;
-                this.loadState();
-                this.processIncomingHash(); // Antes de initGrid
-                this.initGrid();
-                this.initEvents();
-            }
-
-            getStorageKey() {
-                return 'miniXL_data_v1';
-            }
-
-            loadState() {
-                let saved = null;
-                try { saved = JSON.parse(localStorage.getItem(this.getStorageKey())); } catch (e) {}
-                if (!saved || !saved.sheets || !saved.sheets.length) {
-                    saved = {
-                        sheets: [{ id: 'sheet_1', name: 'Hoja 1', data: {}, operations: {}, keyboardMode: 'text' }],
-                        activeSheetId: 'sheet_1'
-                    };
-                }
-                this.sheets = saved.sheets;
-                this.activeSheetId = saved.activeSheetId;
-                if (!this.sheets.some(s => s.id === this.activeSheetId)) {
-                    this.activeSheetId = this.sheets[0].id;
-                }
-            }
-
-            saveState() {
-                try {
-                    localStorage.setItem(this.getStorageKey(), JSON.stringify({
-                        sheets: this.sheets,
-                        activeSheetId: this.activeSheetId
-                    }));
-                } catch (e) {}
-            }
-
-            getCurrentSheet() {
-                return this.sheets.find(s => s.id === this.activeSheetId) || this.sheets[0];
-            }
-
-            getColName(index) {
-                let name = '';
-                let num = index + 1;
-                while (num > 0) {
-                    let modulo = (num - 1) % 26;
-                    name = String.fromCharCode(65 + modulo) + name;
-                    num = Math.floor((num - modulo) / 26);
-                }
-                return name;
-            }
-
-            getCellKey(row, col) {
-                return `${this.getColName(col)}${row + 1}`;
-            }
-
-            calculateColumnSummary(colIndex) {
-                const sheet = this.getCurrentSheet();
-                const op = sheet.operations[colIndex] || 'SUM';
-                let values = [];
-                for (let r = 0; r < this.rows; r++) {
-                    const key = this.getCellKey(r, colIndex);
-                    const val = sheet.data[key];
-                    if (val !== undefined && val !== '' && !isNaN(val)) {
-                        values.push(parseFloat(val));
-                    }
-                }
-                if (values.length === 0) return '-';
-                switch(op) {
-                    case 'SUM': return values.reduce((a, b) => a + b, 0).toLocaleString();
-                    case 'AVG': return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2);
-                    case 'MAX': return Math.max(...values).toLocaleString();
-                    case 'MIN': return Math.min(...values).toLocaleString();
-                    case 'COUNT': return values.length;
-                    default: return '-';
-                }
-            }
-
-            initGrid() {
-                this.updateSheetSelectorLabel();
-                const table = document.getElementById('spreadsheet-table');
-                const sheet = this.getCurrentSheet();
-                let html = '';
-
-                html += '<thead>';
-                html += '<tr>';
-                html += '<th class="sticky top-0 left-0 z-30 border border-slate-300 w-12 h-9 text-xs text-slate-600 font-bold text-center select-none bg-slate-200">Σ</th>';
-                for (let c = 0; c < this.cols; c++) {
-                    const currentOp = sheet.operations[c] || 'SUM';
-                    const summaryVal = this.calculateColumnSummary(c);
-                    const opNames = { 'SUM': 'Suma', 'AVG': 'Promedio', 'MAX': 'Máximo', 'MIN': 'Mínimo', 'COUNT': 'Conteo' };
-                    const opTitle = opNames[currentOp] || 'Suma';
-                    html += `
-                        <th class="sticky top-0 z-20 border border-slate-300 h-9 px-2 text-xs font-medium text-slate-700 text-center select-none min-w-[100px] max-w-[100px] w-[100px] bg-slate-50">
-                            <div class="flex flex-col items-center justify-center h-full cursor-pointer hover:bg-slate-100 transition rounded" onclick="gridApp.openOperationModal(${c})" title="Haz clic para cambiar operación">
-                                <span class="text-[10px] text-pine-green font-bold truncate w-full">${opTitle}</span>
-                                <div class="text-pine-green font-bold text-sm truncate w-full" id="summary_col_${c}">${summaryVal}</div>
-                            </div>
-                        </th>
-                    `;
-                }
-                html += '</tr>';
-                html += '<tr>';
-                html += '<th class="sticky top-9 left-0 z-30 border border-slate-300 w-12 h-8 text-xs text-slate-500 font-semibold text-center select-none bg-slate-100">#</th>';
-                for (let c = 0; c < this.cols; c++) {
-                    html += `
-                        <th class="sticky top-9 z-20 border border-slate-300 h-8 px-2 text-xs font-semibold text-center select-none min-w-[100px] max-w-[100px] w-[100px] bg-slate-100">
-                            <div class="flex items-center justify-center space-x-1">
-                                <span class="text-slate-600">${this.getColName(c)}</span>
-                            </div>
-                        </th>
-                    `;
-                }
-                html += '</tr>';
-                html += '</thead>';
-                html += '<tbody>';
-                for (let r = 0; r < this.rows; r++) {
-                    html += `<tr>`;
-                    html += `<th class="sticky left-0 z-10 border border-slate-300 w-12 h-8 text-xs text-slate-500 font-semibold text-center select-none bg-slate-100">${r + 1}</th>`;
-                    for (let c = 0; c < this.cols; c++) {
-                        const cellKey = this.getCellKey(r, c);
-                        const val = (sheet.data[cellKey] || '').toString().replace(/"/g, '&quot;');
-                        const isNumeric = sheet.keyboardMode === 'numeric';
-                        const toggleClass = isNumeric ? 'keyboard-toggle-btn active-numeric' : 'keyboard-toggle-btn';
-                        html += `
-                            <td class="border border-slate-300 h-8 p-0 relative bg-white hover:bg-slate-50 transition-colors min-w-[100px] max-w-[100px] w-[100px]" data-row="${r}" data-col="${c}">
-                                <div class="cell-container">
-                                    <input type="text" inputmode="${isNumeric ? 'decimal' : 'text'}" class="cell-input" value="${val}" 
-                                        data-row="${r}" data-col="${c}" 
-                                        id="cell_${r}_${c}" enterkeyhint="next" tabindex="${c * this.rows + r + 1}">
-                                    <button type="button" class="${toggleClass}" onclick="gridApp.toggleKeyboardType(${r}, ${c}, event)" title="Cambiar teclado">123</button>
-                                </div>
-                            </td>
-                        `;
-                    }
-                    html += `</tr>`;
-                }
-                html += '</tbody>';
-                table.innerHTML = html;
-            }
-
-            toggleKeyboardType(r, c, event) {
-                event.stopPropagation();
-                const sheet = this.getCurrentSheet();
-                sheet.keyboardMode = sheet.keyboardMode === 'numeric' ? 'text' : 'numeric';
-                const numeric = sheet.keyboardMode === 'numeric';
-                this.saveState();
-                document.querySelectorAll('.cell-input').forEach(i => i.setAttribute('inputmode', numeric ? 'decimal' : 'text'));
-                document.querySelectorAll('.keyboard-toggle-btn').forEach(btn => btn.classList.toggle('active-numeric', numeric));
-                const input = document.getElementById(`cell_${r}_${c}`);
-                if (input) { input.blur(); setTimeout(() => input.focus(), 30); }
-            }
-
-            updateSheetSelectorLabel() {
-                const sheet = this.getCurrentSheet();
-                const label = document.getElementById('current-sheet-label');
-                if (label) label.innerText = sheet.name;
-            }
-
-            openSheetsManagerModal() {
-                const modal = document.getElementById('custom-modal');
-                const modalTitle = document.getElementById('modal-title');
-                const modalMsg = document.getElementById('modal-message');
-                const inputContainer = document.getElementById('modal-input-container');
-                const sheetsContainer = document.getElementById('modal-sheets-container');
-                const operationsContainer = document.getElementById('modal-operations-container');
-                const
+    <script src="js/lz-string.js"></script>
+    <script src="js/modal.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/selection.js"></script>
+    <script src="js/grid.js"></script>
+    <script src="js/cells.js"></script>
+    <script src="js/columns.js"></script>
+    <script src="js/clipboard.js"></script>
+    <script src="js/formulas.js"></script>
+    <script src="js/sheets.js"></script>
+    <script src="js/sharing.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
