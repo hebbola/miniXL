@@ -1,6 +1,5 @@
-/* columns.js — Modal de operaciones + WAVG + chips de peso + hardcodeo
-   Regla: cualquier columna puede ser peso. Si tenía fórmula, se hardcodea.
-   Click en chip = aplica WAVG inmediatamente.
+/* columns.js — Modal de operaciones + WAVG + chips + hardcodeo
+   Regla: click en chip aplica WAVG inmediato. Ω hace toggle de la franja.
    Expone: window.Columns */
 (function () {
     'use strict';
@@ -24,29 +23,35 @@
             { showOperationsOptions: true }
         );
 
-        resetOperationsUI();
+        hideWeightsUI();
 
         var current = window.State.getOp(colIndex);
         if (current && current.op === 'WAVG' && current.weights) {
             selectedWeights = current.weights.slice(0, 1);
-            openWeightsUI();
-            renderChips();
+            showWeightsUI();
         }
     }
 
-    function resetOperationsUI() {
+    // ---------- Franja de pesos ----------
+    function hideWeightsUI() {
+        uiState = 'idle';
         var strip = document.getElementById('weights-strip');
         if (strip) strip.classList.add('hidden');
     }
 
-    function openWeightsUI() {
+    function showWeightsUI() {
         uiState = 'weights-open';
         var strip = document.getElementById('weights-strip');
         if (strip) strip.classList.remove('hidden');
         renderChips();
     }
 
-    // ---------- Chips (siempre elegibles) ----------
+    function toggleWeightsUI() {
+        if (uiState === 'weights-open') hideWeightsUI();
+        else showWeightsUI();
+    }
+
+    // ---------- Chips ----------
     function renderChips() {
         var container = document.getElementById('weights-chips');
         if (!container) return;
@@ -54,10 +59,8 @@
         var html = '';
         for (var c = 0; c < S.cols; c++) {
             if (c === activeCol) continue;
-
             var isSelected = selectedWeights.indexOf(c) !== -1;
             var classes = 'weight-chip' + (isSelected ? ' selected' : '');
-
             html += '<div class="' + classes + '" data-weight-col="' + c + '">' +
                     window.State.getColName(c) +
                     '</div>';
@@ -65,20 +68,10 @@
         container.innerHTML = html;
     }
 
-    // ---------- Click en chip = aplica WAVG directo ----------
-    function pickWeightAndApply(colIndex) {
-        selectedWeights = [colIndex];
-        renderChips();
-        // Aplicar inmediatamente
-        confirmWAVG();
-    }
-
     // ---------- Aplicar operación ----------
     function selectColumnOperation(op) {
         if (op === 'WAVG') {
-            if (uiState !== 'weights-open') {
-                openWeightsUI();
-            }
+            toggleWeightsUI();
             return;
         }
         applyOperation({ op: op });
@@ -90,89 +83,92 @@
             window.Modal.hide();
             return;
         }
-        applyOperation({ op: 'WAVG', weights: selectedWeights.slice() });
+        var w = selectedWeights.slice();
+        // Cerrar modal PRIMERO
         window.Modal.hide();
+        applyOperation({ op: 'WAVG', weights: w });
     }
 
     function applyOperation(opObj) {
-        if (activeCol === null) return;
-
-        if (opObj.op === 'WAVG' && opObj.weights && opObj.weights.length) {
-            hardcodeWeightColumns(opObj.weights);
+        if (activeCol === null) {
+            console.warn('applyOperation: activeCol null');
+            return;
         }
 
-        var sheet = window.State.getCurrentSheet();
-        sheet.operations[activeCol] = opObj;
-        window.State.saveState();
+        try {
+            if (opObj.op === 'WAVG' && opObj.weights && opObj.weights.length) {
+                hardcodeWeightColumns(opObj.weights);
+            }
 
-        window.Grid.render();
-        window.Selection.paintSelection();
+            var sheet = window.State.getCurrentSheet();
+            sheet.operations[activeCol] = opObj;
+            window.State.saveState();
 
-        activeCol = null;
-        selectedWeights = [];
-        uiState = 'idle';
+            window.Grid.render();
+            if (window.Selection && window.Selection.paintSelection) {
+                window.Selection.paintSelection();
+            }
+        } catch (e) {
+            console.error('applyOperation error:', e);
+        } finally {
+            activeCol = null;
+            selectedWeights = [];
+            uiState = 'idle';
+        }
     }
 
-    // ---------- Hardcodear columnas que eran peso con fórmula ----------
     function hardcodeWeightColumns(weights) {
         var sheet = window.State.getCurrentSheet();
-
         weights.forEach(function (wCol) {
             if (!sheet.operations[wCol]) return;
-
-            // Hardcodear fila a fila: leer valor crudo actual y escribirlo
-            // como texto. Como las columnas calculadas no tienen valor por fila,
-            // lo que hacemos es: si la celda tiene valor crudo, se queda;
-            // si la columna tenía operación, se elimina la operación (pasa a cruda).
             for (var r = 0; r < S.rows; r++) {
                 var key = window.State.getCellKey(r, wCol);
                 var v = sheet.data[key];
-                if (v !== undefined && v !== '') {
-                    sheet.data[key] = String(v);
-                }
+                if (v !== undefined && v !== '') sheet.data[key] = String(v);
             }
             delete sheet.operations[wCol];
         });
-
         window.State.saveState();
     }
 
-    // ---------- Delegación ----------
+    // ---------- Delegación GLOBAL ----------
     function bindDelegatedEvents() {
+
+        // 1) Header de columna → abrir modal
         document.addEventListener('click', function (e) {
-            var el = e.target.closest('[data-col-op]');
+            var el = e.target.closest && e.target.closest('[data-col-op]');
             if (!el) return;
             var c = parseInt(el.dataset.colOp, 10);
             openOperationModal(c);
         });
 
-        var opsContainer = document.getElementById('modal-operations-container');
-        if (opsContainer) {
-            opsContainer.addEventListener('click', function (e) {
-                var btn = e.target.closest('[data-op]');
-                if (!btn) return;
-                selectColumnOperation(btn.dataset.op);
-            });
-        }
+        // 2) Botones de operación del modal
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest && e.target.closest('#modal-operations-container [data-op]');
+            if (!btn) return;
+            selectColumnOperation(btn.dataset.op);
+        });
 
-        var chipsContainer = document.getElementById('weights-chips');
-        if (chipsContainer) {
-            chipsContainer.addEventListener('click', function (e) {
-                var chip = e.target.closest('[data-weight-col]');
-                if (!chip) return;
-                pickWeightAndApply(parseInt(chip.dataset.weightCol, 10));
-            });
-        }
+        // 3) Chips de peso (delegado a document)
+        document.addEventListener('click', function (e) {
+            var chip = e.target.closest && e.target.closest('#weights-chips [data-weight-col]');
+            if (!chip) return;
+            var colIdx = parseInt(chip.dataset.weightCol, 10);
+            selectedWeights = [colIdx];
+            renderChips();
+            confirmWAVG();
+        });
 
-        var modalOk = document.getElementById('modal-ok');
-        if (modalOk) {
-            modalOk.addEventListener('click', function (e) {
-                if (uiState === 'weights-open') {
-                    e.stopImmediatePropagation();
-                    confirmWAVG();
-                }
-            }, true);
-        }
+        // 4) Botón Aceptar del modal: si estamos en modo pesos, aplicar WAVG
+        document.addEventListener('click', function (e) {
+            var ok = e.target.closest && e.target.closest('#modal-ok');
+            if (!ok) return;
+            if (uiState === 'weights-open') {
+                e.stopImmediatePropagation();
+                e.preventDefault();
+                confirmWAVG();
+            }
+        }, true);
     }
 
     window.Columns = {
