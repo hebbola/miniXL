@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="color-scheme" content="light dark">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Hoja de Cálculo</title>
+    <title>MiniXL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -22,65 +22,30 @@
             }
         }
     </script>
+    <script>
+    /* LZ-string minificado (lz-string 1.5.0, MIT) - compressToEncodedURIComponent / decompressFromEncodedURIComponent */
+    var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",e={};function t(r,o){if(!e[r]){e[r]={};for(var n=0;n<r.length;n++)e[r][r.charAt(n)]=n}return e[r][o]}var a={compressToBase64:function(r){if(null==r)return"";var n=a._compress(r,6,function(r){return o.charAt(r)});switch(n.length%4){default:case 0:return n;case 1:return n+"===";case 2:return n+"==";case 3:return n+"="}},decompressFromBase64:function(r){return null==r?"":""==r?null:a._decompress(r.length,32,function(n){return t(o,r.charAt(n))})},compressToUTF16:function(r){return null==r?"":a._compress(r,15,function(r){return String.fromCharCode(r+32)})+" "},decompressFromUTF16:function(r){return null==r?"":""==r?null:a._decompress(r.length,16384,function(o){return r.charCodeAt(o)-32})},compressToUint8Array:function(r){for(var o=a.compress(r),n=new Uint8Array(2*o.length),e=0,t=o.length;e<t;e++){var s=o.charCodeAt(e);n[2*e]=s>>>8,n[2*e+1]=s%256}return n},decompressFromUint8Array:function(r){if(null==r)return a.decompress(r);for(var o=new Array(r.length/2),n=0,e=o.length;n<e;n++)o[n]=256*r[2*n]+r[2*n+1];var t=[];return o.forEach(function(r){t.push(String.fromCharCode(r))}),a.decompress(t.join(""))},compressToEncodedURIComponent:function(r){return null==r?"":a._compress(r,6,function(r){return n.charAt(r)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:(r=r.replace(/ /g,"+"),a._decompress(r.length,32,function(o){return t(n,r.charAt(o))}))},compress:function(r){return a._compress(r,16,function(r){return String.fromCharCode(r)})},_compress:function(r,o,n){if(null==r)return"";var e,t,a={},i={},s="",c="",f="",u=2,p=3,l=2,d=[],h=0,v=0;for(a=0;a<r.length;a+=1)if(s=r.charAt(a),Object.prototype.hasOwnProperty.call(i,s)||(i[s]=p++,d.push(s)),c=f+s,Object.prototype.hasOwnProperty.call(a2=c,i))f=c;else{if(Object.prototype.hasOwnProperty.call(i,f)){if(f.charCodeAt(0)<256){for(e=0;e<l;e++)h<<=1,v==o-1?(v=0,d.push(n(h)),h=0):v++;for(a2=f.charCodeAt(0),e=0;e<8;e++)h=h<<1|1&a2,v==o-1?(v=0,d.push(n(h)),h=0):v++,a2>>=1}else{for(a2=1,e=0;e<l;e++)h=h<<1|a2,v==o-1?(v=0,d.push(n(h)),h=0):v++,a2=0;for(a2=f.charCodeAt(0),e=0;e<16;e++)h=h<<1|1&a2,v==o-1?(v=0,d.push(n(h)),h=0):v++,a2>>=1}0==--u&&(u=Math.pow(2,l),l++),delete i[f]}else for(a2=i[f],e=0;e<l;e++)h=h<<1|1&a2,v==o-1?(v=0,d.push(n(h)),h=0):v++,a2>>=1;0==--u&&(u=Math.pow(2,l),l++),i[c]=p++,f=String(s)}if(""!==f){if(Object.prototype.hasOwnProperty.call(i,f)){if(f.charCodeAt(0)<256){for(e=0;e<l;e++)h<<=1,v==o-1?(v=0,d.push(n(h)),h=0):v++;for(a2=f.charCodeAt(0),e=0;e<8;e++)h=h<<1|1&a2,v==o-1?(v=0,d.push(n(h)),h=0):v++,a2>>=1}else{for(a2=1,e=0;e<l;e++)h=h<<1|a2,v==o-1?(v=0,d.push(n(h)),h=0):v++,a2=0;for(a2=f.charCodeAt(0),e=0;e<16;e++)h=h<<1|1&a2,v==o-1?(v=0,d.push(n(h)),h=0):v++,a2>>=1}0==--u&&(u=Math.pow(2,l),l++),delete i[f]}else for(a2=i[f],e=0;e<l;e++)h=h<<1|1&a2,v==o-1?(v=0,d.push(n(h)),h=0):v++,a2>>=1;0==--u&&(u=Math.pow(2,l),l++)}for(a2=2,e=0;e<l;e++)h=h<<1|1&a2,v==o-1?(v=0,d.push(n(h)),h=0):v++,a2>>=1;for(;;){if(h<<=1,v==o-1){d.push(n(h));break}v++}return d.join("")},_decompress:function(o,n,e){var t,a,i,s,c,f,u,p=[],l=4,d=4,h=3,v="",g=[],y={val:e(0),position:n,index:1};for(t=0;t<3;t+=1)p[t]=t;for(i=0,s=Math.pow(2,2),f=1;f!=s;)c=y.val&y.position,y.position>>=1,0==y.position&&(y.position=n,y.val=e(y.index++)),i|=(c>0?1:0)*f,f<<=1;switch(i){case 0:for(i=0,s=Math.pow(2,8),f=1;f!=s;)c=y.val&y.position,y.position>>=1,0==y.position&&(y.position=n,y.val=e(y.index++)),i|=(c>0?1:0)*f,f<<=1;u=r(i);break;case 1:for(i=0,s=Math.pow(2,16),f=1;f!=s;)c=y.val&y.position,y.position>>=1,0==y.position&&(y.position=n,y.val=e(y.index++)),i|=(c>0?1:0)*f,f<<=1;u=r(i);break;case 2:return""}for(p[3]=u,a=u,g.push(u);;){if(y.index>o)return"";for(i=0,s=Math.pow(2,h),f=1;f!=s;)c=y.val&y.position,y.position>>=1,0==y.position&&(y.position=n,y.val=e(y.index++)),i|=(c>0?1:0)*f,f<<=1;switch(u=i){case 0:for(i=0,s=Math.pow(2,8),f=1;f!=s;)c=y.val&y.position,y.position>>=1,0==y.position&&(y.position=n,y.val=e(y.index++)),i|=(c>0?1:0)*f,f<<=1;p[d++]=r(i),u=d-1,l--;break;case 1:for(i=0,s=Math.pow(2,16),f=1;f!=s;)c=y.val&y.position,y.position>>=1,0==y.position&&(y.position=n,y.val=e(y.index++)),i|=(c>0?1:0)*f,f<<=1;p[d++]=r(i),u=d-1,l--;break;case 2:return g.join("")}if(0==l&&(l=Math.pow(2,h),h++),p[u])v=p[u];else{if(u!==d)return null;v=a+a.charAt(0)}g.push(v),p[d++]=a+v.charAt(0),l--,a=v,0==l&&(l=Math.pow(2,h),h++)}}};return a}();
+    </script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        .cell-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
+        .cell-container { position: relative; width: 100%; height: 100%; }
         .cell-input {
-            width: 100%;
-            height: 100%;
-            border: none;
-            outline: none;
-            background: transparent;
-            padding: 0.25rem 2rem 0.25rem 0.5rem;
-            font-size: 0.875rem;
-            color: #1e293b;
+            width: 100%; height: 100%; border: none; outline: none;
+            background: transparent; padding: 0.25rem 2rem 0.25rem 0.5rem;
+            font-size: 0.875rem; color: #1e293b;
         }
-        .cell-selected {
-            box-shadow: inset 0 0 0 2px #1e6b52 !important;
-            background-color: #f2f8f6 !important;
-        }
+        .cell-selected { box-shadow: inset 0 0 0 2px #1e6b52 !important; background-color: #f2f8f6 !important; }
         .keyboard-toggle-btn {
-            position: absolute;
-            right: 4px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 24px;
-            height: 20px;
-            border-radius: 4px;
-            background-color: transparent;
-            color: #94a3b8;
-            font-size: 10px;
-            font-weight: 600;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 5;
-            transition: all 0.2s;
-            letter-spacing: -0.5px;
+            position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+            width: 24px; height: 20px; border-radius: 4px;
+            background-color: transparent; color: #94a3b8; font-size: 10px; font-weight: 600;
+            display: none; align-items: center; justify-content: center; cursor: pointer;
+            z-index: 5; transition: all 0.2s; letter-spacing: -0.5px;
         }
-        .keyboard-toggle-btn.active-numeric {
-            color: #1e6b52;
-            background-color: rgba(30, 107, 82, 0.08);
-            font-weight: 700;
-        }
-        .keyboard-toggle-btn:hover {
-            color: #475569;
-            background-color: rgba(0, 0, 0, 0.04);
-        }
-        .cell-selected .keyboard-toggle-btn {
-            display: flex;
-        }
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
+        .keyboard-toggle-btn.active-numeric { color: #1e6b52; background-color: rgba(30, 107, 82, 0.08); font-weight: 700; }
+        .keyboard-toggle-btn:hover { color: #475569; background-color: rgba(0, 0, 0, 0.04); }
+        .cell-selected .keyboard-toggle-btn { display: flex; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         @media (prefers-color-scheme: dark) {
             body, .bg-slate-100 { background-color: #0f172a !important; color: #e2e8f0; }
             .bg-slate-200, .bg-slate-300 { background-color: #1e293b !important; }
@@ -110,9 +75,7 @@
             <div id="modal-input-container" class="hidden">
                 <input type="text" id="modal-input" class="w-full px-4 py-2.5 border border-slate-200 rounded-full focus:outline-none focus:border-pine-green text-sm bg-slate-50">
             </div>
-            <div id="modal-sheets-container" class="hidden max-h-60 overflow-y-auto space-y-2 pr-1">
-                <!-- Se llena dinámicamente con las hojas guardadas -->
-            </div>
+            <div id="modal-sheets-container" class="hidden max-h-60 overflow-y-auto space-y-2 pr-1"></div>
             <div id="modal-operations-container" class="hidden grid grid-cols-2 gap-2 pt-2">
                 <button onclick="gridApp.selectColumnOperationModal('SUM')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-pine-light hover:border-pine-green transition group text-center space-y-1">
                     <div class="w-8 h-8 rounded-lg bg-pine-green/10 text-pine-green flex items-center justify-center group-hover:bg-pine-green group-hover:text-white transition font-bold text-sm">Σ</div>
@@ -142,11 +105,11 @@
                     </div>
                     <span class="text-xs font-semibold text-slate-700">Descargar CSV</span>
                 </button>
-                <button onclick="gridApp.shareAppCopy()" class="flex flex-col items-center justify-center p-4 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-pine-light hover:border-pine-green transition group text-center space-y-2">
+                <button onclick="gridApp.shareByMessage()" class="flex flex-col items-center justify-center p-4 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-pine-light hover:border-pine-green transition group text-center space-y-2">
                     <div class="w-12 h-12 rounded-xl bg-pine-green/10 text-pine-green flex items-center justify-center group-hover:bg-pine-green group-hover:text-white transition">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
                     </div>
-                    <span class="text-xs font-semibold text-slate-700">Enviar App con Hoja</span>
+                    <span class="text-xs font-semibold text-slate-700">Enviar por mensaje</span>
                 </button>
             </div>
             <div class="flex justify-end space-x-2 pt-2">
@@ -176,14 +139,12 @@
     </header>
 
     <div id="grid-container" class="flex-1 overflow-auto bg-slate-200 relative select-none">
-        <table id="spreadsheet-table" class="border-collapse bg-white shadow-sm">
-            <!-- Se llena dinámicamente -->
-        </table>
+        <table id="spreadsheet-table" class="border-collapse bg-white shadow-sm"></table>
     </div>
 
     <script>
         function showModal(title, message, options = {}) {
-            const { showInput = false, showSheetsList = false, showShareOptions = false, showOperationsOptions = false, callback = null } = options;
+            const { showInput = false, showSheetsList = false, showShareOptions = false, showOperationsOptions = false, callback = null, defaultValue = '' } = options;
             const modal = document.getElementById('custom-modal');
             const modalTitle = document.getElementById('modal-title');
             const modalMsg = document.getElementById('modal-message');
@@ -198,8 +159,8 @@
             btnOk.innerText = 'Aceptar';
             modalTitle.innerText = title;
             modalMsg.innerText = message;
-            inputField.value = '';
-            
+            inputField.value = defaultValue;
+
             if (showInput || showSheetsList || showShareOptions || showOperationsOptions || callback) {
                 btnCancel.classList.remove('hidden');
             } else {
@@ -212,24 +173,14 @@
             if (showSheetsList) sheetsContainer.classList.remove('hidden');
             else sheetsContainer.classList.add('hidden');
 
-            if (showOperationsOptions) {
-                operationsContainer.classList.remove('hidden');
-                btnOk.classList.add('hidden');
-            } else {
-                operationsContainer.classList.add('hidden');
-                btnOk.classList.remove('hidden');
-            }
+            if (showOperationsOptions) { operationsContainer.classList.remove('hidden'); btnOk.classList.add('hidden'); }
+            else { operationsContainer.classList.add('hidden'); btnOk.classList.remove('hidden'); }
 
-            if (showShareOptions) {
-                shareContainer.classList.remove('hidden');
-                btnOk.classList.add('hidden');
-            } else {
-                shareContainer.classList.add('hidden');
-                btnOk.classList.remove('hidden');
-            }
+            if (showShareOptions) { shareContainer.classList.remove('hidden'); btnOk.classList.add('hidden'); }
+            else { shareContainer.classList.add('hidden'); btnOk.classList.remove('hidden'); }
 
             modal.classList.remove('hidden');
-            if (showInput) setTimeout(() => inputField.focus(), 50);
+            if (showInput) setTimeout(() => { inputField.focus(); inputField.select(); }, 50);
 
             const newOk = btnOk.cloneNode(true);
             const newCancel = btnCancel.cloneNode(true);
@@ -257,32 +208,22 @@
                 this.rows = rows;
                 this.selectedRow = 0;
                 this.selectedCol = 0;
-                
                 this.loadState();
+                this.processIncomingHash(); // Antes de initGrid
                 this.initGrid();
                 this.initEvents();
             }
 
             getStorageKey() {
-                return window.__HOJA_ACTIVA__
-                    ? 'telarh_compartida_' + (window.__HOJA_ACTIVA__.id || 'x')
-                    : 'mini_excel_multisheet_data_v8';
+                return 'miniXL_data_v1';
             }
 
             loadState() {
                 let saved = null;
                 try { saved = JSON.parse(localStorage.getItem(this.getStorageKey())); } catch (e) {}
-                if (!saved && window.__HOJA_ACTIVA__) {
-                    const p = window.__HOJA_ACTIVA__;
-                    saved = {
-                        sheets: [{ id: p.id || 'sheet_shared', name: p.name || 'Hoja compartida',
-                                   data: p.data || {}, operations: p.operations || {}, keyboardTypes: p.keyboardTypes || {} }],
-                        activeSheetId: p.id || 'sheet_shared'
-                    };
-                }
                 if (!saved || !saved.sheets || !saved.sheets.length) {
                     saved = {
-                        sheets: [{ id: 'sheet_1', name: 'Hoja 1', data: {}, operations: {}, keyboardTypes: {} }],
+                        sheets: [{ id: 'sheet_1', name: 'Hoja 1', data: {}, operations: {}, keyboardMode: 'text' }],
                         activeSheetId: 'sheet_1'
                     };
                 }
@@ -332,22 +273,14 @@
                         values.push(parseFloat(val));
                     }
                 }
-
                 if (values.length === 0) return '-';
-
                 switch(op) {
-                    case 'SUM':
-                        return values.reduce((a, b) => a + b, 0).toLocaleString();
-                    case 'AVG':
-                        return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2);
-                    case 'MAX':
-                        return Math.max(...values).toLocaleString();
-                    case 'MIN':
-                        return Math.min(...values).toLocaleString();
-                    case 'COUNT':
-                        return values.length;
-                    default:
-                        return '-';
+                    case 'SUM': return values.reduce((a, b) => a + b, 0).toLocaleString();
+                    case 'AVG': return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2);
+                    case 'MAX': return Math.max(...values).toLocaleString();
+                    case 'MIN': return Math.min(...values).toLocaleString();
+                    case 'COUNT': return values.length;
+                    default: return '-';
                 }
             }
 
@@ -355,22 +288,16 @@
                 this.updateSheetSelectorLabel();
                 const table = document.getElementById('spreadsheet-table');
                 const sheet = this.getCurrentSheet();
-
                 let html = '';
 
                 html += '<thead>';
-                
-                // Fila de Sumatoria (sticky top 0)
                 html += '<tr>';
                 html += '<th class="sticky top-0 left-0 z-30 border border-slate-300 w-12 h-9 text-xs text-slate-600 font-bold text-center select-none bg-slate-200">Σ</th>';
-                
                 for (let c = 0; c < this.cols; c++) {
                     const currentOp = sheet.operations[c] || 'SUM';
                     const summaryVal = this.calculateColumnSummary(c);
-                    
                     const opNames = { 'SUM': 'Suma', 'AVG': 'Promedio', 'MAX': 'Máximo', 'MIN': 'Mínimo', 'COUNT': 'Conteo' };
                     const opTitle = opNames[currentOp] || 'Suma';
-
                     html += `
                         <th class="sticky top-0 z-20 border border-slate-300 h-9 px-2 text-xs font-medium text-slate-700 text-center select-none min-w-[100px] max-w-[100px] w-[100px] bg-slate-50">
                             <div class="flex flex-col items-center justify-center h-full cursor-pointer hover:bg-slate-100 transition rounded" onclick="gridApp.openOperationModal(${c})" title="Haz clic para cambiar operación">
@@ -381,11 +308,8 @@
                     `;
                 }
                 html += '</tr>';
-
-                // Fila de letras de columnas A, B, C... (sticky top 9)
                 html += '<tr>';
                 html += '<th class="sticky top-9 left-0 z-30 border border-slate-300 w-12 h-8 text-xs text-slate-500 font-semibold text-center select-none bg-slate-100">#</th>';
-                
                 for (let c = 0; c < this.cols; c++) {
                     html += `
                         <th class="sticky top-9 z-20 border border-slate-300 h-8 px-2 text-xs font-semibold text-center select-none min-w-[100px] max-w-[100px] w-[100px] bg-slate-100">
@@ -397,24 +321,19 @@
                 }
                 html += '</tr>';
                 html += '</thead>';
-
                 html += '<tbody>';
                 for (let r = 0; r < this.rows; r++) {
                     html += `<tr>`;
-                    // Número de fila fijo a la izquierda (sticky left-0 z-10)
                     html += `<th class="sticky left-0 z-10 border border-slate-300 w-12 h-8 text-xs text-slate-500 font-semibold text-center select-none bg-slate-100">${r + 1}</th>`;
-                    
                     for (let c = 0; c < this.cols; c++) {
                         const cellKey = this.getCellKey(r, c);
-                        const val = sheet.data[cellKey] || '';
+                        const val = (sheet.data[cellKey] || '').toString().replace(/"/g, '&quot;');
                         const isNumeric = sheet.keyboardMode === 'numeric';
-                        const inputType = 'text';
                         const toggleClass = isNumeric ? 'keyboard-toggle-btn active-numeric' : 'keyboard-toggle-btn';
-
                         html += `
                             <td class="border border-slate-300 h-8 p-0 relative bg-white hover:bg-slate-50 transition-colors min-w-[100px] max-w-[100px] w-[100px]" data-row="${r}" data-col="${c}">
                                 <div class="cell-container">
-                                    <input type="${inputType}" inputmode="${isNumeric ? 'decimal' : 'text'}" class="cell-input" value="${val}" 
+                                    <input type="text" inputmode="${isNumeric ? 'decimal' : 'text'}" class="cell-input" value="${val}" 
                                         data-row="${r}" data-col="${c}" 
                                         id="cell_${r}_${c}" enterkeyhint="next" tabindex="${c * this.rows + r + 1}">
                                     <button type="button" class="${toggleClass}" onclick="gridApp.toggleKeyboardType(${r}, ${c}, event)" title="Cambiar teclado">123</button>
@@ -425,7 +344,6 @@
                     html += `</tr>`;
                 }
                 html += '</tbody>';
-
                 table.innerHTML = html;
             }
 
@@ -435,12 +353,8 @@
                 sheet.keyboardMode = sheet.keyboardMode === 'numeric' ? 'text' : 'numeric';
                 const numeric = sheet.keyboardMode === 'numeric';
                 this.saveState();
-
-                // Actualiza todas las celdas sin re-renderizar
                 document.querySelectorAll('.cell-input').forEach(i => i.setAttribute('inputmode', numeric ? 'decimal' : 'text'));
                 document.querySelectorAll('.keyboard-toggle-btn').forEach(btn => btn.classList.toggle('active-numeric', numeric));
-
-                // Refresca el teclado en la celda activa
                 const input = document.getElementById(`cell_${r}_${c}`);
                 if (input) { input.blur(); setTimeout(() => input.focus(), 30); }
             }
@@ -448,9 +362,7 @@
             updateSheetSelectorLabel() {
                 const sheet = this.getCurrentSheet();
                 const label = document.getElementById('current-sheet-label');
-                if (label) {
-                    label.innerText = sheet.name;
-                }
+                if (label) label.innerText = sheet.name;
             }
 
             openSheetsManagerModal() {
@@ -460,340 +372,4 @@
                 const inputContainer = document.getElementById('modal-input-container');
                 const sheetsContainer = document.getElementById('modal-sheets-container');
                 const operationsContainer = document.getElementById('modal-operations-container');
-                const shareContainer = document.getElementById('modal-share-container');
-                const btnOk = document.getElementById('modal-ok');
-                const btnCancel = document.getElementById('modal-cancel');
-
-                modalTitle.innerText = "Gestión de Hojas";
-                modalMsg.innerText = "Selecciona una hoja o crea una nueva:";
-                
-                inputContainer.classList.add('hidden');
-                shareContainer.classList.add('hidden');
-                operationsContainer.classList.add('hidden');
-                sheetsContainer.classList.remove('hidden');
-                btnCancel.classList.add('hidden');
-                btnOk.classList.remove('hidden');
-                btnOk.innerText = "Cerrar";
-
-                this.renderSheetsListInModal();
-
-                modal.classList.remove('hidden');
-
-                const newOk = btnOk.cloneNode(true);
-                btnOk.parentNode.replaceChild(newOk, btnOk);
-
-                newOk.addEventListener('click', () => {
-                    modal.classList.add('hidden');
-                });
-            }
-
-            renderSheetsListInModal() {
-                const sheetsContainer = document.getElementById('modal-sheets-container');
-                
-                let html = `
-                    <div class="flex items-center space-x-2.5 p-2.5 rounded-2xl border border-dashed border-pine-green/60 bg-pine-light hover:bg-pine-light/80 transition cursor-pointer mb-2" onclick="gridApp.createNewSheetFromModal()">
-                        <div class="w-7 h-7 rounded-full bg-pine-green text-white flex items-center justify-center font-bold text-sm">+</div>
-                        <span class="text-sm font-semibold text-pine-green">Nueva Hoja</span>
-                    </div>
-                `;
-
-                html += this.sheets.map(s => {
-                    const isActive = s.id === this.activeSheetId;
-                    return `
-                        <div class="flex items-center justify-between p-2.5 rounded-2xl border ${isActive ? 'border-pine-green bg-pine-light' : 'border-slate-100 bg-slate-50 hover:bg-slate-100'} transition">
-                            <div class="flex items-center space-x-2.5 cursor-pointer flex-1" onclick="gridApp.switchToSheetFromModal('${s.id}')">
-                                <div class="w-2.5 h-2.5 rounded-full ${isActive ? 'bg-pine-green' : 'bg-slate-300'}"></div>
-                                <span class="text-sm font-medium ${isActive ? 'text-pine-green font-bold' : 'text-slate-700'}">${s.name}</span>
-                            </div>
-                            <button onclick="event.stopPropagation(); gridApp.deleteSheetById('${s.id}')" class="w-8 h-8 rounded-full hover:bg-red-100 flex items-center justify-center text-slate-400 hover:text-red-600 transition" title="Eliminar hoja">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                            </button>
-                        </div>
-                    `;
-                }).join('');
-
-                sheetsContainer.innerHTML = html;
-            }
-
-            switchToSheetFromModal(sheetId) {
-                this.activeSheetId = sheetId;
-                this.saveState();
-                this.initGrid();
-                this.initEvents();
-                document.getElementById('custom-modal').classList.add('hidden');
-            }
-
-            deleteSheetById(sheetId) {
-                if (this.sheets.length <= 1) {
-                    showModal("Aviso", "No puedes eliminar la única hoja existente.");
-                    return;
-                }
-                this.sheets = this.sheets.filter(s => s.id !== sheetId);
-                if (this.activeSheetId === sheetId) {
-                    this.activeSheetId = this.sheets[0].id;
-                }
-                this.saveState();
-                this.initGrid();
-                this.initEvents();
-                this.renderSheetsListInModal();
-                document.getElementById('custom-modal').classList.remove('hidden');
-            }
-
-            createNewSheet() {
-                showModal("Nueva hoja", "Nombre de la nueva hoja:", {
-                    showInput: true,
-                    callback: (sheetName) => {
-                        if (sheetName && sheetName.trim() !== '') {
-                            const newId = 'sheet_' + Date.now();
-                            this.sheets.push({
-                                id: newId,
-                                name: sheetName.trim(),
-                                data: {},
-                                operations: {},
-                                keyboardTypes: {}
-                            });
-                            this.activeSheetId = newId;
-                            this.saveState();
-                            this.initGrid();
-                            this.initEvents();
-                        }
-                    }
-                });
-            }
-
-            createNewSheetFromModal() {
-                document.getElementById('custom-modal').classList.add('hidden');
-                setTimeout(() => {
-                    this.createNewSheet();
-                }, 100);
-            }
-
-            openOperationModal(colIndex) {
-                this.activeOperationCol = colIndex;
-                const colName = this.getColName(colIndex);
-                showModal("Seleccionar operación", `Elige la agregación para la columna ${colName}:`, {
-                    showOperationsOptions: true
-                });
-            }
-
-            selectColumnOperationModal(op) {
-                document.getElementById('custom-modal').classList.add('hidden');
-                if (this.activeOperationCol !== undefined) {
-                    const sheet = this.getCurrentSheet();
-                    sheet.operations[this.activeOperationCol] = op;
-                    this.saveState();
-                    this.initGrid();
-                    this.initEvents();
-                }
-            }
-
-            updateColumnSummary(colIndex) {
-                const summaryVal = this.calculateColumnSummary(colIndex);
-                const summaryEl = document.getElementById(`summary_col_${colIndex}`);
-                if (summaryEl) {
-                    summaryEl.innerText = summaryVal;
-                }
-            }
-
-            initEvents() {
-                const inputs = document.querySelectorAll('.cell-input');
-
-                inputs.forEach(input => {
-                    const r = parseInt(input.dataset.row);
-                    const c = parseInt(input.dataset.col);
-
-                    input.addEventListener('focus', (e) => {
-                        this.selectCell(r, c, false);
-                    });
-
-                    input.addEventListener('input', (e) => {
-                        const sheet = this.getCurrentSheet();
-                        const cellKey = this.getCellKey(r, c);
-                        const value = e.target.value;
-                        if (value === '') {
-                            delete sheet.data[cellKey];
-                        } else {
-                            sheet.data[cellKey] = value;
-                        }
-                        this.saveState();
-                        this.updateColumnSummary(c);
-                    });
-
-                    input.addEventListener('keydown', (e) => {
-                        let targetR = r;
-                        let targetC = c;
-
-                        if (e.key === 'ArrowDown' || e.key === 'Enter' || e.keyCode === 13) {
-                            targetR = Math.min(this.rows - 1, r + 1);
-                            e.preventDefault();
-                        } else if (e.key === 'ArrowUp') {
-                            targetR = Math.max(0, r - 1);
-                            e.preventDefault();
-                        } else if (e.key === 'ArrowRight' && input.selectionEnd === input.value.length) {
-                            targetC = Math.min(this.cols - 1, c + 1);
-                            e.preventDefault();
-                        } else if (e.key === 'ArrowLeft' && input.selectionStart === 0) {
-                            targetC = Math.max(0, c - 1);
-                            e.preventDefault();
-                        } else if (e.key === 'Tab') {
-                            targetR = Math.min(this.rows - 1, r + 1);
-                            e.preventDefault();
-                        }
-
-                        if (targetR !== r || targetC !== c) {
-                            this.selectCell(targetR, targetC, true);
-                        }
-                    });
-                });
-            }
-
-            selectCell(r, c, focusInput = true) {
-                document.querySelectorAll('td').forEach(td => td.classList.remove('cell-selected'));
-
-                this.selectedRow = r;
-                this.selectedCol = c;
-
-                const input = document.getElementById(`cell_${r}_${c}`);
-                if (input) {
-                    const td = input.parentElement.parentElement;
-                    td.classList.add('cell-selected');
-                    
-                    const container = document.getElementById('grid-container');
-                    const tdRect = td.getBoundingClientRect();
-                    const containerRect = container.getBoundingClientRect();
-
-                    const targetLeft = container.scrollLeft + (tdRect.left - containerRect.left) - (containerRect.width / 2) + (tdRect.width / 2);
-                    const targetTop = container.scrollTop + (tdRect.top - containerRect.top) - (containerRect.height / 2) + (tdRect.height / 2);
-
-                    container.scrollTo({
-                        left: Math.max(0, targetLeft),
-                        top: Math.max(0, targetTop),
-                        behavior: 'smooth'
-                    });
-
-                    if (focusInput) {
-                        setTimeout(() => {
-                            input.focus();
-                            input.select();
-                        }, 50);
-                    }
-                }
-            }
-
-            openShareModal() {
-                showModal("Compartir", "Elige el formato con el que deseas compartir o descargar:", {
-                    showShareOptions: true
-                });
-            }
-
-            async saveFile(filename, data, mime) {
-                try {
-                    if (window.claude && window.claude.use) {
-                        const dl = await window.claude.use("downloads");
-                        if (dl) {
-                            await dl.save({ filename, data: new Blob([data], { type: mime }) });
-                            return true;
-                        }
-                    }
-                } catch (e) { if (e && e.code === 'declined') return true; }
-                const url = URL.createObjectURL(new Blob([data], { type: mime }));
-                const a = document.createElement('a');
-                a.href = url; a.download = filename; a.click();
-                URL.revokeObjectURL(url);
-                return true;
-            }
-
-            downloadCSV() {
-                document.getElementById('custom-modal').classList.add('hidden');
-                const sheet = this.getCurrentSheet();
-                let csvContent = "";
-                for (let r = 0; r < this.rows; r++) {
-                    let rowArr = [];
-                    for (let c = 0; c < this.cols; c++) {
-                        const cellKey = this.getCellKey(r, c);
-                        let val = sheet.data[cellKey] || '';
-                        if (val.includes(',') || val.includes('"')) {
-                            val = `"${val.replace(/"/g, '""')}"`;
-                        }
-                        rowArr.push(val);
-                    }
-                    csvContent += rowArr.join(",") + "\n";
-                }
-
-                this.saveFile(`${sheet.name.toLowerCase().replace(/\s+/g, '_')}.csv`, csvContent, 'text/csv;charset=utf-8;');
-            }
-
-            buildAppHtml() {
-                // Solo la hoja activa, con id nuevo para que cada copia tenga su propio almacenamiento
-                const src = this.getCurrentSheet();
-                const copia = JSON.parse(JSON.stringify(src));
-                copia.id = 'compartida_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-                const payload = JSON.stringify(copia).replace(/</g, '\\u003c');
-
-                // App completa, sin el DOM renderizado ni payloads previos (todo vía DOM, sin regex sobre el código)
-                const clone = document.documentElement.cloneNode(true);
-                const tabla = clone.querySelector('#spreadsheet-table');
-                if (tabla) tabla.innerHTML = '';
-                const modal = clone.querySelector('#custom-modal');
-                if (modal) modal.classList.add('hidden');
-                const previo = clone.querySelector('#hoja-compartida');
-                if (previo) previo.remove();
-                const tag = document.createElement('script');
-                tag.id = 'hoja-compartida';
-                tag.textContent = 'window.__HOJA_ACTIVA__=' + payload + ';';
-                clone.querySelector('head').insertBefore(tag, clone.querySelector('head').firstChild);
-                const html = '<!DOCTYPE html>\n' + clone.outerHTML;
-                return html;
-            }
-
-            async shareAppCopy() {
-                document.getElementById('custom-modal').classList.add('hidden');
-                const html = this.buildAppHtml();
-                const name = `telarh_${this.getCurrentSheet().name.replace(/\s+/g, '_')}.html`;
-
-                // Android abre su hoja de compartir con el archivo adjunto
-                const tipos = ['text/html', 'text/plain'];
-                for (const tipo of tipos) {
-                    const file = new File([html], name, { type: tipo });
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        try {
-                            await navigator.share({ title: 'TELARH', files: [file] });
-                            return;
-                        } catch (err) {
-                            if (err.name === 'AbortError') return;
-                        }
-                    }
-                }
-                this.fallbackDownloadHtml(html);
-            }
-
-            async fallbackDownloadHtml(htmlContent) {
-                await this.saveFile(`telarh_${this.getCurrentSheet().name.replace(/\s+/g, '_')}.html`, htmlContent, 'text/html');
-            }
-
-            fallbackShareText(text) {
-                if (navigator.share) {
-                    navigator.share({
-                        title: 'Resumen Hoja de Cálculo',
-                        text: text
-                    }).catch(() => {});
-                } else {
-                    const textArea = document.createElement("textarea");
-                    textArea.value = text;
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    try {
-                        document.execCommand('copy');
-                        showModal("¡Copiado!", "Los datos se han copiado al portapapeles.");
-                    } catch (err) {
-                        showModal("Aviso", "No se pudo compartir automáticamente.");
-                    }
-                    document.body.removeChild(textArea);
-                }
-            }
-        }
-
-        const gridApp = new ExcelGridApp(20, 40);
-    </script>
-</body>
-</html>
+                const
