@@ -13,15 +13,101 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
     color: #1e293b;
 }
 
+/* Selección: celda activa (focus) con marco pine idéntico al de antes */
 .cell-selected {
     box-shadow: inset 0 0 0 2px #1e6b52 !important;
     background-color: #f2f8f6 !important;
+    position: relative;
 }
 
+/* Celdas dentro del rango (excepto la activa) */
 .cell-in-range {
     background-color: #e0efe9 !important;
 }
 
+/* Cuadrado de arrastre estilo Excel — esquina inferior derecha */
+.cell-selected .drag-handle {
+    position: absolute;
+    right: -4px;
+    bottom: -4px;
+    width: 8px;
+    height: 8px;
+    background: #1e6b52;
+    border: 1px solid #fff;
+    border-radius: 1px;
+    cursor: crosshair;
+    z-index: 10;
+    display: block;
+}
+
+/* Marco tomable desde los bordes */
+.cell-selected .edge-handle {
+    position: absolute;
+    z-index: 9;
+    cursor: move;
+}
+.cell-selected .edge-handle.top    { top: 0;    left: 6px;  right: 6px;  height: 4px; }
+.cell-selected .edge-handle.bottom { bottom: 0; left: 6px;  right: 6px;  height: 4px; }
+.cell-selected .edge-handle.left   { left: 0;   top: 6px;   bottom: 6px; width: 4px;  }
+.cell-selected .edge-handle.right  { right: 0;  top: 6px;   bottom: 6px; width: 4px;  }
+
+/* Franja de pesos */
+#weights-strip {
+    animation: slideDown 0.18s ease-out;
+}
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.weight-chip {
+    flex: 0 0 auto;
+    min-width: 34px;
+    height: 30px;
+    padding: 0 8px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.55;
+    transition: all 0.15s;
+    user-select: none;
+}
+.weight-chip:hover {
+    opacity: 0.85;
+}
+.weight-chip.selected {
+    opacity: 1;
+    border-color: #1e6b52;
+    background: #f2f8f6;
+    color: #1e6b52;
+    box-shadow: 0 0 0 1px #1e6b52 inset;
+}
+.weight-chip.disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+/* Feedback copiar / cortar */
+@keyframes flashCopy {
+    0%   { background-color: #bbf7d0; }
+    100% { background-color: transparent; }
+}
+@keyframes flashCut {
+    0%   { background-color: #fed7aa; }
+    100% { background-color: transparent; }
+}
+.cell-copy-flash { animation: flashCopy 0.4s ease-out; }
+.cell-cut-flash  { animation: flashCut 0.4s ease-out; }
+
+/* Teclado numérico (botón 123) */
 .keyboard-toggle-btn {
     position: absolute;
     right: 4px;
@@ -42,18 +128,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
     transition: all 0.2s;
     letter-spacing: -0.5px;
 }
-
 .keyboard-toggle-btn.active-numeric {
     color: #1e6b52;
     background-color: rgba(30, 107, 82, 0.08);
     font-weight: 700;
 }
-
 .keyboard-toggle-btn:hover {
     color: #475569;
     background-color: rgba(0, 0, 0, 0.04);
 }
-
 .cell-selected .keyboard-toggle-btn { display: flex; }
 
 input::-webkit-outer-spin-button,
@@ -80,4 +163,18 @@ input::-webkit-inner-spin-button {
     .keyboard-toggle-btn.active-numeric { color: #4ade9b; background-color: rgba(74,222,155,.12); }
     .bg-pine-green { background-color: #14503d !important; }
     input { color-scheme: dark; }
+
+    .cell-selected .drag-handle { background: #4ade9b; border-color: #0f172a; }
+
+    .weight-chip {
+        background: #1f2937;
+        border-color: #334155;
+        color: #94a3b8;
+    }
+    .weight-chip.selected {
+        background: #12302a;
+        border-color: #4ade9b;
+        color: #4ade9b;
+        box-shadow: 0 0 0 1px #4ade9b inset;
+    }
 }

@@ -1,22 +1,20 @@
 /* state.js — Estado global + persistencia + gestión de hojas
-   Expone: window.state (objeto compartido)
-           window.State (API de operaciones)
-*/
+   Formato de operaciones (nuevo):
+     sheet.operations[col] = { op: 'SUM' | 'AVG' | 'MAX' | 'MIN' | 'COUNT' | 'WAVG', weights?: [cols] }
+   Expone: window.state, window.State */
 (function () {
     'use strict';
 
     var STORAGE_KEY = 'miniXL_data_v1';
 
-    // Estado compartido
     var state = {
         cols: 20,
         rows: 40,
         sheets: [],
         activeSheetId: null,
-        // Selección (Fase 1 ampliará a rango)
         selection: {
-            anchor: { row: 0, col: 0 },  // celda donde empezó
-            focus:  { row: 0, col: 0 }   // celda actual (para rango futuro)
+            anchor: { row: 0, col: 0 },
+            focus:  { row: 0, col: 0 }
         }
     };
 
@@ -40,6 +38,18 @@
         return (prefix || 'id') + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     }
 
+    // Normaliza operación al formato objeto
+    function normalizeOp(raw) {
+        if (raw == null) return null;
+        if (typeof raw === 'string') return { op: raw };
+        return raw;
+    }
+
+    function getOp(col) {
+        var sheet = getCurrentSheet();
+        return normalizeOp(sheet.operations[col]);
+    }
+
     // ---------- Persistencia ----------
     function loadState() {
         var saved = null;
@@ -57,6 +67,16 @@
                 activeSheetId: 'sheet_1'
             };
         }
+
+        // Migrar operaciones string → objeto
+        saved.sheets.forEach(function (s) {
+            var ops = s.operations || {};
+            var migrated = {};
+            Object.keys(ops).forEach(function (k) {
+                migrated[k] = normalizeOp(ops[k]);
+            });
+            s.operations = migrated;
+        });
 
         state.sheets = saved.sheets;
         state.activeSheetId = saved.activeSheetId;
@@ -128,10 +148,30 @@
         return sheet.data[getCellKey(row, col)];
     }
 
+    // ¿La columna tiene operación propia?
+    function isCalculatedCol(col) {
+        var sheet = getCurrentSheet();
+        return !!sheet.operations[col];
+    }
+
+    // Elimina la operación de una columna (usado al hardcodear)
+    function clearColOperation(col) {
+        var sheet = getCurrentSheet();
+        delete sheet.operations[col];
+        saveState();
+    }
+
+    // Escribe valor crudo (usado al hardcodear)
+    function setRawCell(row, col, value) {
+        var sheet = getCurrentSheet();
+        var key = getCellKey(row, col);
+        if (value === '' || value == null) delete sheet.data[key];
+        else sheet.data[key] = String(value);
+    }
+
     // ---------- Init ----------
     loadState();
 
-    // API pública
     window.state = state;
     window.State = {
         STORAGE_KEY: STORAGE_KEY,
@@ -145,6 +185,11 @@
         addSheet: addSheet,
         deleteSheet: deleteSheet,
         setCellValue: setCellValue,
-        getCellValue: getCellValue
+        getCellValue: getCellValue,
+        normalizeOp: normalizeOp,
+        getOp: getOp,
+        isCalculatedCol: isCalculatedCol,
+        clearColOperation: clearColOperation,
+        setRawCell: setRawCell
     };
 })();

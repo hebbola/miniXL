@@ -1,12 +1,6 @@
-/* clipboard.js — Copiar / pegar rango de celdas
-   Estado actual: STUB mínimo (Fase 1 lo implementa completo).
-   Responsabilidad futura:
-     - Ctrl+C: copia rango seleccionado como TSV (Excel-compatible)
-     - Ctrl+V: pega TSV en la celda activa, expandiendo rango
-     - Ctrl+X: corta (copia + limpia)
-     - Copia interna + interoperabilidad con Excel / Google Sheets
-   Expone: window.Clipboard
-*/
+/* clipboard.js — Copiar / cortar / pegar rangos (TSV)
+   Interoperable con Excel y Google Sheets.
+   Expone: window.Clipboard */
 (function () {
     'use strict';
 
@@ -30,36 +24,7 @@
         return lines.join('\n');
     }
 
-    // ---------- Copiar al portapapeles del sistema ----------
-    function copyRange() {
-        var tsv = rangeToTSV();
-        if (!tsv) return;
-
-        // Fallback para navegadores sin clipboard API
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(tsv).catch(function () {
-                fallbackCopy(tsv);
-            });
-        } else {
-            fallbackCopy(tsv);
-        }
-
-        // Marca visual temporal
-        flashRange('copy');
-    }
-
-    function fallbackCopy(text) {
-        var ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.position = 'fixed';
-        ta.style.left = '-9999px';
-        document.body.appendChild(ta);
-        ta.select();
-        try { document.execCommand('copy'); } catch (e) {}
-        document.body.removeChild(ta);
-    }
-
-    // ---------- Pegar en celda activa ----------
+    // ---------- Pegar TSV desde celda activa ----------
     function pasteRange(text) {
         if (!text) return;
 
@@ -67,10 +32,7 @@
         var startCol = S.selection.focus.col;
         var sheet = window.State.getCurrentSheet();
 
-        // Normalizar saltos de línea
         var rows = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
-
-        // Quitar última línea si está vacía
         if (rows.length && rows[rows.length - 1] === '') rows.pop();
 
         for (var r = 0; r < rows.length; r++) {
@@ -84,28 +46,32 @@
 
                 var key = window.State.getCellKey(targetR, targetC);
                 var val = cells[c];
-                if (val === '') {
-                    delete sheet.data[key];
-                } else {
-                    sheet.data[key] = val;
-                }
+                if (val === '') delete sheet.data[key];
+                else sheet.data[key] = val;
             }
         }
 
         window.State.saveState();
         window.Grid.render();
         window.Selection.paintSelection();
-
-        // Refrescar todos los summaries de columnas afectadas
-        for (var cc = 0; cc < S.cols; cc++) {
-            window.Grid.updateColumnSummary(cc);
-        }
+        refreshAllSummaries();
     }
 
-    // ---------- Cortar ----------
+    function refreshAllSummaries() {
+        for (var c = 0; c < S.cols; c++) window.Grid.updateColumnSummary(c);
+    }
+
+    // ---------- Acciones públicas (usadas por botones del header) ----------
+    function copyRange() {
+        var tsv = rangeToTSV();
+        copyToClipboard(tsv);
+        flashRange('copy');
+    }
+
     function cutRange() {
-        copyRange();
-        // Tras copiar, borrar el rango
+        var tsv = rangeToTSV();
+        copyToClipboard(tsv);
+
         var range = window.Selection.getRange();
         var sheet = window.State.getCurrentSheet();
         for (var r = range.minRow; r <= range.maxRow; r++) {
@@ -116,7 +82,43 @@
         window.State.saveState();
         window.Grid.render();
         window.Selection.paintSelection();
+        refreshAllSummaries();
         flashRange('cut');
+    }
+
+    function pasteFromSystem() {
+        // Se dispara el evento paste nativo. En navegadores no seguros
+        // solo funciona si el foco está en un input/contenteditable.
+        // Alternativa: pedir permiso y leer.
+        if (navigator.clipboard && navigator.clipboard.readText) {
+            navigator.clipboard.readText().then(function (text) {
+                if (text) pasteRange(text);
+            }).catch(function () {
+                // Silencioso
+            });
+        }
+    }
+
+    // ---------- Copiar al portapapeles del sistema ----------
+    function copyToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).catch(function () {
+                fallbackCopy(text);
+            });
+        } else {
+            fallbackCopy(text);
+        }
+    }
+
+    function fallbackCopy(text) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
     }
 
     // ---------- Feedback visual ----------
@@ -127,57 +129,97 @@
             for (var c = range.minCol; c <= range.maxCol; c++) {
                 var td = document.querySelector('td[data-row="' + r + '"][data-col="' + c + '"]');
                 if (!td) continue;
-                td.classList.add(cls);
                 (function (el) {
+                    el.classList.add(cls);
                     setTimeout(function () { el.classList.remove(cls); }, 400);
                 })(td);
             }
         }
     }
 
-    // ---------- Detectar Ctrl+C / Ctrl+V / Ctrl+X ----------
-    function onKeyDown(e) {
-        var ctrl = e.ctrlKey || e.metaKey;
-        if (!ctrl) return;
-
-        var key = e.key.toLowerCase();
-
-        // Si el usuario está editando texto dentro de una celda,
-        // dejamos que el navegador maneje copy/paste nativo.
-        var target = e.target;
-        if (target && target.classList && target.classList.contains('cell-input')) {
-            var hasTextSelected = target.selectionStart !== target.selectionEnd;
-            if (hasTextSelected) return; // dejar copy nativo
+    // ---------- Eventos nativos copy / cut / paste ----------
+    function onNativeCopy(e) {
+        // Si el usuario está editando dentro de un input con texto seleccionado,
+        // dejamos pasar el copy nativo.
+        var t = e.target;
+        if (t && t.classList && t.classList.contains('cell-input')) {
+            if (t.selectionStart !== t.selectionEnd) return;
         }
 
-        if (key === 'c') {
-            e.preventDefault();
-            copyRange();
-        } else if (key === 'x') {
-            e.preventDefault();
-            cutRange();
-        } else if (key === 'v') {
-            e.preventDefault();
-            if (navigator.clipboard && navigator.clipboard.readText) {
-                navigator.clipboard.readText().then(function (text) {
-                    pasteRange(text);
-                }).catch(function () {
-                    // Fallback silencioso: sin permiso de lectura, no hay pegado
-                });
+        var tsv = rangeToTSV();
+        if (!tsv) return;
+
+        e.clipboardData.setData('text/plain', tsv);
+        e.preventDefault();
+        flashRange('copy');
+    }
+
+    function onNativeCut(e) {
+        var t = e.target;
+        if (t && t.classList && t.classList.contains('cell-input')) {
+            if (t.selectionStart !== t.selectionEnd) return;
+        }
+
+        var tsv = rangeToTSV();
+        if (!tsv) return;
+
+        e.clipboardData.setData('text/plain', tsv);
+        e.preventDefault();
+
+        // Borrar el rango
+        var range = window.Selection.getRange();
+        var sheet = window.State.getCurrentSheet();
+        for (var r = range.minRow; r <= range.maxRow; r++) {
+            for (var c = range.minCol; c <= range.maxCol; c++) {
+                delete sheet.data[window.State.getCellKey(r, c)];
             }
         }
+        window.State.saveState();
+        window.Grid.render();
+        window.Selection.paintSelection();
+        refreshAllSummaries();
+        flashRange('cut');
     }
 
-    // ---------- Init ----------
+    function onNativePaste(e) {
+        // Igual: si está en un input con foco, dejamos paste nativo
+        var t = e.target;
+        if (t && t.classList && t.classList.contains('cell-input')) return;
+
+        var text = e.clipboardData.getData('text/plain');
+        if (!text) return;
+
+        e.preventDefault();
+        pasteRange(text);
+    }
+
+    // ---------- Botones del header (modo selección) ----------
+    function bindHeaderButtons() {
+        var btnCopy  = document.getElementById('btn-sel-copy');
+        var btnCut   = document.getElementById('btn-sel-cut');
+        var btnPaste = document.getElementById('btn-sel-paste');
+        var btnClose = document.getElementById('btn-sel-close');
+
+        if (btnCopy)  btnCopy.addEventListener('click', copyRange);
+        if (btnCut)   btnCut.addEventListener('click', cutRange);
+        if (btnPaste) btnPaste.addEventListener('click', pasteFromSystem);
+        if (btnClose) btnClose.addEventListener('click', function () {
+            window.Selection.clearSelection();
+        });
+    }
+
     function bindDelegatedEvents() {
-        document.addEventListener('keydown', onKeyDown);
+        document.addEventListener('copy',  onNativeCopy);
+        document.addEventListener('cut',   onNativeCut);
+        document.addEventListener('paste', onNativePaste);
+        bindHeaderButtons();
     }
 
-    // API pública
     window.Clipboard = {
         copyRange: copyRange,
-        pasteRange: pasteRange,
         cutRange: cutRange,
+        pasteRange: pasteRange,
+        pasteFromSystem: pasteFromSystem,
         bindDelegatedEvents: bindDelegatedEvents
     };
 })();

@@ -1,16 +1,35 @@
 /* main.js — Punto de arranque
-   Responsabilidad:
-     - Comprobar que todos los módulos estén cargados
-     - Procesar hash entrante (hoja compartida por URL)
-     - Renderizar grid
-     - Conectar todos los eventos delegados
-     - Exponer window.gridApp para compatibilidad (debug)
+   - Verifica módulos
+   - Procesa hash entrante (hoja compartida)
+   - Render inicial
+   - Conecta eventos delegados
+   - Expone UI.updateHeaderMode(hasRange)
 */
 (function () {
     'use strict';
 
+    // ---------- UI: cambiar header según selección ----------
+    var UI = {
+        updateHeaderMode: function (hasRange) {
+            var shareBtn = document.getElementById('btn-open-share');
+            var selActions = document.getElementById('selection-actions');
+            if (!shareBtn || !selActions) return;
+
+            if (hasRange) {
+                shareBtn.classList.add('hidden');
+                selActions.classList.remove('hidden');
+                selActions.classList.add('flex');
+            } else {
+                shareBtn.classList.remove('hidden');
+                selActions.classList.add('hidden');
+                selActions.classList.remove('flex');
+            }
+        }
+    };
+    window.UI = UI;
+
+    // ---------- Arranque ----------
     function boot() {
-        // --- Comprobar módulos ---
         var missing = [];
         if (!window.state)         missing.push('state');
         if (!window.State)         missing.push('State');
@@ -35,7 +54,7 @@
             return;
         }
 
-        // --- Procesar hash ANTES de renderizar (crea hoja nueva si aplica) ---
+        // Procesar hash antes de render
         var fromHash = false;
         try {
             fromHash = window.Sharing.processIncomingHash();
@@ -43,20 +62,24 @@
             console.error('Error procesando hash:', e);
         }
 
-        // --- Render inicial ---
+        // Render inicial
         window.Grid.render();
 
-        // --- Seleccionar A1 ---
+        // Selección inicial (A1)
         window.Selection.selectCell(0, 0, false);
 
-        // --- Conectar eventos delegados ---
+        // Eventos
         window.Cells.bindDelegatedEvents();
         window.Columns.bindDelegatedEvents();
         window.Clipboard.bindDelegatedEvents();
         window.Sheets.bindDelegatedEvents();
         window.Sharing.bindDelegatedEvents();
+        window.Selection.bindDelegatedEvents();
 
-        // --- Compatibilidad / debug ---
+        // Header: estado inicial
+        UI.updateHeaderMode(false);
+
+        // Debug
         window.gridApp = {
             state: window.state,
             render: window.Grid.render,
@@ -75,10 +98,10 @@
             }
         };
 
-        console.log('%cMiniXL listo', 'color:#1e6b52;font-weight:bold', fromHash ? '(hoja recibida por URL)' : '');
+        console.log('%cMiniXL listo', 'color:#1e6b52;font-weight:bold',
+            fromHash ? '(hoja recibida por URL)' : '');
     }
 
-    // --- Arrancar cuando el DOM esté listo ---
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', boot);
     } else {

@@ -1,16 +1,14 @@
-/* grid.js — Render de la tabla (headers, columnas, filas, celdas)
-   Responsabilidad:
-     - Construir el HTML de <table>
-     - Refrescar el resumen de una columna concreta
-     - Actualizar la etiqueta del selector de hojas
-   Expone: window.Grid
-*/
+/* grid.js — Render de la tabla + cálculo de operaciones (incluye WAVG)
+   Expone: window.Grid */
 (function () {
     'use strict';
 
     var S = window.state;
 
-    var OP_NAMES = { 'SUM': 'Suma', 'AVG': 'Promedio', 'MAX': 'Máximo', 'MIN': 'Mínimo', 'COUNT': 'Conteo' };
+    var OP_NAMES = {
+        'SUM': 'Suma', 'AVG': 'Promedio', 'MAX': 'Máximo',
+        'MIN': 'Mínimo', 'COUNT': 'Conteo', 'WAVG': 'Pond.'
+    };
 
     function escapeAttr(str) {
         return String(str)
@@ -20,18 +18,54 @@
             .replace(/>/g, '&gt;');
     }
 
-    // ---------- Resumen de columna ----------
-    function calculateColumnSummary(colIndex) {
-        var sheet = S.sheets.find(function (s) { return s.id === S.activeSheetId; });
-        var op = sheet.operations[colIndex] || 'SUM';
-        var values = [];
+    // ---------- Valores numéricos de una columna ----------
+    function numericValues(colIndex) {
+        var sheet = window.State.getCurrentSheet();
+        var out = [];
+        for (var r = 0; r < S.rows; r++) {
+            var v = sheet.data[window.State.getCellKey(r, colIndex)];
+            if (v !== undefined && v !== '' && !isNaN(v)) out.push(parseFloat(v));
+        }
+        return out;
+    }
+
+    // ---------- WAVG: promedio ponderado ----------
+    function calculateWAVG(colIndex, weightCols) {
+        var sheet = window.State.getCurrentSheet();
+        var sumVP = 0, sumP = 0;
 
         for (var r = 0; r < S.rows; r++) {
-            var key = window.State.getCellKey(r, colIndex);
-            var val = sheet.data[key];
-            if (val !== undefined && val !== '' && !isNaN(val)) {
-                values.push(parseFloat(val));
+            var vRaw = sheet.data[window.State.getCellKey(r, colIndex)];
+            if (vRaw === undefined || vRaw === '' || isNaN(vRaw)) continue;
+
+            var pesoFila = 0;
+            for (var i = 0; i < weightCols.length; i++) {
+                var pRaw = sheet.data[window.State.getCellKey(r, weightCols[i])];
+                if (pRaw === undefined || pRaw === '') continue;
+                var p = parseFloat(pRaw);
+                if (isNaN(p)) continue;
+                pesoFila += p;
             }
+            if (pesoFila === 0) continue;
+
+            sumVP += parseFloat(vRaw) * pesoFila;
+            sumP  += pesoFila;
+        }
+
+        if (sumP === 0) return '-';
+        return (sumVP / sumP).toFixed(2);
+    }
+
+    // ---------- Cálculo principal del resumen de columna ----------
+    function calculateColumnSummary(colIndex) {
+        var opObj = window.State.getOp(colIndex);
+        var op = opObj ? opObj.op : 'SUM';
+        var values = numericValues(colIndex);
+
+        if (op === 'WAVG') {
+            var weights = opObj.weights || [];
+            if (!weights.length) return '-';
+            return calculateWAVG(colIndex, weights);
         }
 
         if (values.length === 0) return '-';
@@ -53,38 +87,46 @@
 
     // ---------- Etiqueta de hoja ----------
     function updateSheetSelectorLabel() {
-        var sheet = S.sheets.find(function (s) { return s.id === S.activeSheetId; });
+        var sheet = window.State.getCurrentSheet();
         var label = document.getElementById('current-sheet-label');
         if (label && sheet) label.innerText = sheet.name;
     }
 
-    // ---------- Render completo ----------
+    // ---------- Render ----------
     function render() {
         updateSheetSelectorLabel();
 
         var table = document.getElementById('spreadsheet-table');
-        var sheet = S.sheets.find(function (s) { return s.id === S.activeSheetId; });
+        var sheet = window.State.getCurrentSheet();
         var html = '';
 
-        // ----- THEAD -----
         html += '<thead>';
 
         // Fila 1: resumen de columnas
         html += '<tr>';
         html += '<th class="sticky top-0 left-0 z-30 border border-slate-300 w-12 h-9 text-xs text-slate-600 font-bold text-center select-none bg-slate-200">Σ</th>';
         for (var c = 0; c < S.cols; c++) {
-            var currentOp = sheet.operations[c] || 'SUM';
+            var opObj = sheet.operations[c] || { op: 'SUM' };
+            var op = opObj.op || 'SUM';
             var summaryVal = calculateColumnSummary(c);
-            var opTitle = OP_NAMES[currentOp] || 'Suma';
+            var opTitle = OP_NAMES[op] || 'Suma';
+
+            // Tooltip enriquecido para WAVG
+            var title = 'Haz clic para cambiar operación';
+            if (op === 'WAVG' && opObj.weights) {
+                var wNames = opObj.weights.map(function (w) { return window.State.getColName(w); }).join(', ');
+                title = 'Ponderado por: ' + wNames + ' — clic para editar';
+            }
+
             html += '<th class="sticky top-0 z-20 border border-slate-300 h-9 px-2 text-xs font-medium text-slate-700 text-center select-none min-w-[100px] max-w-[100px] w-[100px] bg-slate-50">';
-            html += '<div class="flex flex-col items-center justify-center h-full cursor-pointer hover:bg-slate-100 transition rounded" data-col-op="' + c + '" title="Haz clic para cambiar operación">';
+            html += '<div class="flex flex-col items-center justify-center h-full cursor-pointer hover:bg-slate-100 transition rounded" data-col-op="' + c + '" title="' + escapeAttr(title) + '">';
             html += '<span class="text-[10px] text-pine-green font-bold truncate w-full">' + opTitle + '</span>';
             html += '<div class="text-pine-green font-bold text-sm truncate w-full" id="summary_col_' + c + '">' + summaryVal + '</div>';
             html += '</div></th>';
         }
         html += '</tr>';
 
-        // Fila 2: letras A, B, C...
+        // Fila 2: letras
         html += '<tr>';
         html += '<th class="sticky top-9 left-0 z-30 border border-slate-300 w-12 h-8 text-xs text-slate-500 font-semibold text-center select-none bg-slate-100">#</th>';
         for (var c2 = 0; c2 < S.cols; c2++) {
@@ -96,7 +138,7 @@
         html += '</tr>';
         html += '</thead>';
 
-        // ----- TBODY -----
+        // Body
         html += '<tbody>';
         for (var r = 0; r < S.rows; r++) {
             html += '<tr>';
@@ -123,11 +165,11 @@
         table.innerHTML = html;
     }
 
-    // API pública
     window.Grid = {
         render: render,
         calculateColumnSummary: calculateColumnSummary,
         updateColumnSummary: updateColumnSummary,
-        updateSheetSelectorLabel: updateSheetSelectorLabel
+        updateSheetSelectorLabel: updateSheetSelectorLabel,
+        numericValues: numericValues
     };
 })();
